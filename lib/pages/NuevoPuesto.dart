@@ -48,7 +48,8 @@ class _NuevoPuestoState extends State<NuevoPuesto> {
   @override
   void initState() {
     super.initState();
-
+    _codigoController.text = ''; // Limpiar el campo de código
+    _nombreController.text = ''; // Limpiar el campo de nombre
     if (widget.idDoc.isNotEmpty) {
       FirebaseFirestore.instance.collection('puestos').doc(widget.idDoc).get().then((value) {
         _codigoController.text = value["codigo"];

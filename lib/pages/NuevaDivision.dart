@@ -48,7 +48,8 @@ class _NuevaDivisionState extends State<NuevaDivision> {
   @override
   void initState() {
     super.initState();
-
+    _codigoController.text = ''; // Limpiar el campo de código
+    _nombreController.text = ''; // Limpiar el campo de nombre
     if (widget.idDoc.isNotEmpty) {
       FirebaseFirestore.instance.collection('divisiones').doc(widget.idDoc).get().then((value) {
         _codigoController.text = value["codigo"];
@@ -99,11 +100,8 @@ class _NuevaDivisionState extends State<NuevaDivision> {
                     child: const Text('Eliminar'),
                   ),
                 ),
-
               ],
             ),
-
-
           ],
         ),
       ),
