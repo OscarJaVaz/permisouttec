@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:permisouttec/pages/NuevaDivision.dart';
+import 'package:permisouttec/pages/Puestos.dart';
 
 class HomePage extends StatefulWidget {
-
-  const HomePage({Key? key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -20,9 +20,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Divisiones"),
+        title: const Text('Divisiones'),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('divisiones').snapshots(),
@@ -44,7 +43,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   ListView.builder(
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(), // Deshabilita el desplazamiento de la lista interna
+                    physics: NeverScrollableScrollPhysics(),
                     itemCount: docs.length,
                     itemBuilder: (context, index) {
                       final DocumentSnapshot doc = docs[index];
@@ -52,12 +51,12 @@ class _HomePageState extends State<HomePage> {
                         leading: const Icon(Icons.business),
                         title: Text(doc["codigo"]),
                         subtitle: Text(doc["nombre"]),
-                        onTap: (){
+                        onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) =>  NuevaDivision(idDoc: doc.id,)),
+                            MaterialPageRoute(builder: (context) => NuevaDivision(idDoc: doc.id)),
                           );
-                        }
+                        },
                       );
                     },
                   ),
@@ -69,15 +68,43 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const NuevaDivision(idDoc: "",)),
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return Container(
+                child: Wrap(
+                  children: <Widget>[
+                    ListTile(
+                      leading: const Icon(Icons.add),
+                      title: const Text('Agregar división'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NuevaDivision(idDoc: "")),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.business),
+                      title: const Text('Ver Puestos'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Puestos()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
           );
         },
-        tooltip: 'Agregar división',
-        child: Icon(Icons.add),
+        tooltip: 'Opciones',
+        child: const Icon(Icons.more_vert),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
