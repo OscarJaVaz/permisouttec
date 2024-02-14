@@ -1,31 +1,28 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:permisouttec/pages/NuevaDivision.dart';
-import 'package:permisouttec/pages/Profesores.dart';
-import 'package:permisouttec/pages/Puestos.dart';
+import 'package:flutter/material.dart';
+import 'package:permisouttec/pages/NuevoProfesor.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class Profesores extends StatefulWidget {
+  const Profesores({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<Profesores> createState() => _ProfesoresState();
 }
 
-class _HomePageState extends State<HomePage> {
-  // Método para actualizar los datos
+class _ProfesoresState extends State<Profesores> {
+
   Future<void> _refreshData() async {
     // Puedes realizar aquí cualquier operación necesaria para actualizar los datos
     setState(() {});
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Divisiones'),
+        title: const Text('Profesores'),
       ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('divisiones').snapshots(),
+        stream: FirebaseFirestore.instance.collection('profesores').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -50,12 +47,12 @@ class _HomePageState extends State<HomePage> {
                       final DocumentSnapshot doc = docs[index];
                       return ListTile(
                         leading: const Icon(Icons.business),
-                        title: Text(doc["codigo"]),
-                        subtitle: Text(doc["nombre"]),
+                        title: Text(doc["nombre"]),
+                        subtitle: Text(doc["numero de empleado"]),
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => NuevaDivision(idDoc: doc.id)),
+                            MaterialPageRoute(builder: (context) => NuevoProfesor(idDoc: doc.id)),
                           );
                         },
                       );
@@ -77,37 +74,16 @@ class _HomePageState extends State<HomePage> {
                   children: <Widget>[
                     ListTile(
                       leading: const Icon(Icons.add),
-                      title: const Text('Agregar división'),
+                      title: const Text('Agregar profesor'),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const NuevaDivision(idDoc: "")),
+                          MaterialPageRoute(builder: (context) => const NuevoProfesor(idDoc: "")),
                         );
                       },
                     ),
-                    ListTile(
-                      leading: const Icon(Icons.business),
-                      title: const Text('Ver Puestos'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Puestos()),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.business),
-                      title: const Text('Ver Profesores'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Profesores()),
-                        );
-                      },
-                    ),
+
                   ],
                 ),
               );
