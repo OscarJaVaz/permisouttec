@@ -76,7 +76,7 @@ class _NuevoPuestoState extends State<NuevoPuesto> {
             ),
             TextField(
               controller: _nombreController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
+              decoration: const InputDecoration(labelText: 'Nombre del puesto'),
             ),
             const SizedBox(height: 20),
             Row(
