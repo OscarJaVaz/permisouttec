@@ -38,7 +38,7 @@ class LoginPageWithBackground extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: const login(),
+        child: const Login(),
       ),
     );
   }

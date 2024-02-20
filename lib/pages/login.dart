@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:permisouttec/pages/HomePage.dart';
+import 'package:permisouttec/pages/HomePageProfesor.dart';
+import 'package:permisouttec/pages/RegistroPage.dart';
 
 void main() => runApp(const MyApp());
 
@@ -11,39 +14,61 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Login App',
-      home: login(),
+      home: Login(),
     );
   }
 }
 
-class login extends StatefulWidget {
-  const login({Key? key}) : super(key: key);
+class Login extends StatefulWidget {
+  const Login({Key? key}) : super(key: key);
 
   @override
-  State<login> createState() => _loginState();
+  State<Login> createState() => _LoginState();
 }
 
-class _loginState extends State<login> {
-  var txtUserController = TextEditingController();
-  var txtPassController = TextEditingController();
+class _LoginState extends State<Login> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _obscureText = true;
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
 
   Future<void> fnLogin() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
 
     try {
-      print('Validando Usuario');
+      print('Validating User');
       UserCredential userCredential = await auth.signInWithEmailAndPassword(
-        email: txtUserController.text,
-        password: txtPassController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
       );
       user = userCredential.user;
-      print('user found');
+      print('User found');
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-      );
+      // Get user role from Firestore
+      DocumentSnapshot userInfo =
+      await FirebaseFirestore.instance.collection('usuarios').doc(user!.uid).get();
+      String? rol = userInfo['puesto'];
+
+      // Redirect based on user role
+      if (rol == 'Directivo') {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+              (route) => false, // Remove all routes from the stack
+        );
+      } else if (rol == 'Profesor') {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => HomePageProfesor()),
+              (route) => false, // Remove all routes from the stack
+        );
+      }
     } on FirebaseAuthException catch (e) {
       print('error: ${e.code} ${e.message}');
       if (e.code == 'user-not-found') {
@@ -78,11 +103,10 @@ class _loginState extends State<login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    backgroundColor: Colors.white54,
+      backgroundColor: Colors.white54,
       appBar: AppBar(
         title: Text('Permisos Uttec'),
       ),
-
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -103,29 +127,48 @@ class _loginState extends State<login> {
                 ),
               ),
             ),
-
             TextField(
-              controller: txtUserController,
+              controller: _emailController,
               decoration: InputDecoration(labelText: 'Correo electrónico'),
             ),
             SizedBox(height: 20),
             TextField(
-              controller: txtPassController,
-              decoration: InputDecoration(labelText: 'Contraseña'),
-              obscureText: true,
+              controller: _passwordController,
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: _togglePasswordVisibility,
+                ),
+              ),
+              obscureText: _obscureText,
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: fnLogin,
               child: Text('Iniciar sesión'),
             ),
+            SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("¿Usuario nuevo?"),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegistroPage()),
+                    );
+                  },
+                  child: Text("Regístrate aquí"),
+                ),
+              ],
+            ),
           ],
         ),
       ),
-
-
     );
-
-
   }
 }

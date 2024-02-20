@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:permisouttec/pages/NuevaDivision.dart';
 import 'package:permisouttec/pages/Profesores.dart';
 import 'package:permisouttec/pages/Puestos.dart';
+import 'package:permisouttec/pages/login.dart'; // Asegúrate de importar la página de inicio de sesión
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,11 +20,27 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  // Método para cerrar sesión
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+    // Redirigir a la pantalla de inicio de sesión y reemplazar la vista actual
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Login()), // Redirigir a la página de inicio de sesión
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Divisiones'),
+        actions: [
+          IconButton(
+            onPressed: _logout, // Llamar al método de cierre de sesión al hacer clic en el botón
+            icon: Icon(Icons.logout),
+          ),
+        ],
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('divisiones').snapshots(),
@@ -107,6 +125,11 @@ class _HomePageState extends State<HomePage> {
                           MaterialPageRoute(builder: (context) => const Profesores()),
                         );
                       },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.logout), // Agregar un ícono de cierre de sesión
+                      title: const Text('Cerrar sesión'),
+                      onTap: _logout, // Llamar al método de cierre de sesión al hacer clic en el ítem
                     ),
                   ],
                 ),
