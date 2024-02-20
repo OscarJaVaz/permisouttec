@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:permisouttec/pages/NuevoPermiso.dart';
-import 'package:permisouttec/pages/login.dart'; // Asegúrate de importar la página de inicio de sesión
+import 'package:permisouttec/pages/login.dart';
 
 class HomePageProfesor extends StatefulWidget {
   @override
@@ -10,38 +10,92 @@ class HomePageProfesor extends StatefulWidget {
 }
 
 class _HomePageProfesorState extends State<HomePageProfesor> {
-  // Método para cerrar sesión
-  Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    // Redirigir a la pantalla de inicio de sesión y reemplazar la vista actual
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Login()), // Redirigir a la página de inicio de sesión
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Inicio - Profesor'),
-        actions: [
-          IconButton(
-            onPressed: _logout, // Llamar al método de cierre de sesión al hacer clic en el botón
-            icon: Icon(Icons.logout),
-          ),
-        ],
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => NuevoPermiso()),
-            );
-          },
-          child: Text('Solicitar Permiso'),
-        ),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('permisos').snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error al cargar los datos'));
+          }
+          if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('Sin registros'));
+          }
+          List<DocumentSnapshot> docs = snapshot.data!.docs;
+          return ListView.builder(
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final DocumentSnapshot doc = docs[index];
+              final String estado = doc['estado'];
+              final String tipo = doc['tipo'];
+
+              // Verificar si el campo 'archivado' existe en el documento
+              final Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+
+              // Si el campo 'archivado' existe y es verdadero, se archiva el permiso
+              final bool archivado = data != null && data.containsKey('archivado') ? data['archivado'] : false;
+
+              // Mostrar solo los permisos que no están archivados
+              if (!archivado) {
+                return ListTile(
+                  title: Text('Tipo: $tipo'), // Mostrar el tipo como motivo de la inasistencia
+                  subtitle: Text('Estado: $estado'),
+                );
+              } else {
+                return SizedBox.shrink(); // Ocultar permisos archivados
+              }
+            },
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return Container(
+                child: Wrap(
+                  children: <Widget>[
+                    ListTile(
+                      leading: const Icon(Icons.add),
+                      title: const Text('Solicitar Permiso'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => NuevoPermiso()),
+                        ).then((_) {
+                          // Actualizar la lista de permisos después de que se solicite uno nuevo
+                          setState(() {});
+                        });
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.logout),
+                      title: const Text('Cerrar sesión'),
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => Login()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        tooltip: 'Opciones',
+        child: Icon(Icons.more_vert),
       ),
     );
   }

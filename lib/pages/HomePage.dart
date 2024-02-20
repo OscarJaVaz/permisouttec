@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:permisouttec/pages/NuevaDivision.dart';
 import 'package:permisouttec/pages/Profesores.dart';
 import 'package:permisouttec/pages/Puestos.dart';
+import 'package:permisouttec/pages/VisualizarPermisos.dart';
 import 'package:permisouttec/pages/login.dart'; // Asegúrate de importar la página de inicio de sesión
 
 class HomePage extends StatefulWidget {
@@ -123,6 +124,17 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const Profesores()),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.visibility), // Icono para ver permisos solicitados
+                      title: const Text('Ver Permisos Solicitados'), // Texto para ver permisos solicitados
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => VisualizarPermisos()), // Redireccionar a VisualizarPermisos.dart
                         );
                       },
                     ),
