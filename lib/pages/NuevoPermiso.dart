@@ -30,7 +30,7 @@ class _NuevoPermisoState extends State<NuevoPermiso> {
           // Agregar la solicitud de permiso de ausencia a la colección correspondiente
           await FirebaseFirestore.instance.collection('permisos').add({
             'usuarioId': userId,
-            'tipo': 'ausencia', // Tipo de permiso para ausencia
+            'tipo': _tipoPermisoController.text, // Utilizar el valor del TextField
             'estado': 'pendiente',
           });
 
@@ -59,6 +59,29 @@ class _NuevoPermisoState extends State<NuevoPermiso> {
     } catch (e) {
       print('Error al solicitar permiso de ausencia: $e');
       // Manejar errores de solicitud de permiso aquí
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Aquí puedes inicializar el valor del controlador _tipoPermisoController con el valor actual de 'tipo' de Firebase
+    _initializeTipoPermiso();
+  }
+
+  Future<void> _initializeTipoPermiso() async {
+    try {
+      // Obtener el valor actual de 'tipo' de Firebase y establecerlo en el controlador
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot userInfo = await FirebaseFirestore.instance.collection('usuarios').doc(userId).get();
+      String? tipoPermiso = userInfo['tipo'];
+      if (tipoPermiso != null) {
+        setState(() {
+          _tipoPermisoController.text = tipoPermiso;
+        });
+      }
+    } catch (e) {
+      print('Error al inicializar el valor del tipo de permiso: $e');
     }
   }
 

@@ -10,6 +10,14 @@ class HomePageProfesor extends StatefulWidget {
 }
 
 class _HomePageProfesorState extends State<HomePageProfesor> {
+  late User _currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentUser = FirebaseAuth.instance.currentUser!;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,7 +25,9 @@ class _HomePageProfesorState extends State<HomePageProfesor> {
         title: Text('Inicio - Profesor'),
       ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('permisos').snapshots(),
+        stream: FirebaseFirestore.instance.collection('permisos')
+            .where('usuarioId', isEqualTo: _currentUser.uid) // Filtro por usuario actual
+            .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -25,7 +35,7 @@ class _HomePageProfesorState extends State<HomePageProfesor> {
           if (snapshot.hasError) {
             return Center(child: Text('Error al cargar los datos'));
           }
-          if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(child: Text('Sin registros'));
           }
           List<DocumentSnapshot> docs = snapshot.data!.docs;

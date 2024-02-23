@@ -49,6 +49,10 @@ class _LoginState extends State<Login> {
               (route) => false, // Remove all routes from the stack
         );
       } else if (rol == 'Profesor') {
+        setState(() {
+          // Limpiar cualquier estado previo
+          // Actualizar el estado de la aplicación para reflejar el nuevo usuario
+        });
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomePageProfesor()),
