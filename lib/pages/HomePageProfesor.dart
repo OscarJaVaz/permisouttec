@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:table_calendar/table_calendar.dart'; // Importa el paquete del calendario
+import 'package:table_calendar/table_calendar.dart';
 import 'package:permisouttec/pages/NuevoPermiso.dart';
 import 'package:permisouttec/pages/login.dart';
 
@@ -19,6 +19,50 @@ class _HomePageProfesorState extends State<HomePageProfesor> {
     super.initState();
     _currentUser = FirebaseAuth.instance.currentUser!;
     _selectedDay = DateTime.now(); // Inicializar _selectedDay con la fecha actual
+  }
+
+  Future<void> _showAbsenceDetails(DateTime selectedDay) async {
+    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('permisos')
+        .where('usuarioId', isEqualTo: _currentUser.uid)
+        .where('fecha', isEqualTo: selectedDay)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      return;
+    }
+
+    final doc = querySnapshot.docs[0];
+    final String tipo = doc['tipo'];
+    final String estado = doc['estado'];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Detalles de la Ausencia'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text('Fecha: ${selectedDay.day}/${selectedDay.month}/${selectedDay.year}'),
+              SizedBox(height: 10),
+              Text('Tipo: $tipo'),
+              SizedBox(height: 10),
+              Text('Estado: $estado'),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -53,6 +97,7 @@ class _HomePageProfesorState extends State<HomePageProfesor> {
                   setState(() {
                     _selectedDay = selectedDay;
                   });
+                  _showAbsenceDetails(selectedDay); // Mostrar detalles de la ausencia al hacer clic en el día
                 },
                 eventLoader: (day) {
                   final selectedEvents = <Color>[];
