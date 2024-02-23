@@ -9,6 +9,21 @@ class NuevoPermiso extends StatefulWidget {
 
 class _NuevoPermisoState extends State<NuevoPermiso> {
   final _tipoPermisoController = TextEditingController();
+  DateTime? _selectedDate; // Variable para almacenar la fecha seleccionada
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
 
   Future<void> _solicitarPermiso() async {
     try {
@@ -31,6 +46,7 @@ class _NuevoPermisoState extends State<NuevoPermiso> {
           await FirebaseFirestore.instance.collection('permisos').add({
             'usuarioId': userId,
             'tipo': _tipoPermisoController.text, // Utilizar el valor del TextField
+            'fecha': _selectedDate, // Utilizar la fecha seleccionada
             'estado': 'pendiente',
           });
 
@@ -63,29 +79,6 @@ class _NuevoPermisoState extends State<NuevoPermiso> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    // Aquí puedes inicializar el valor del controlador _tipoPermisoController con el valor actual de 'tipo' de Firebase
-    _initializeTipoPermiso();
-  }
-
-  Future<void> _initializeTipoPermiso() async {
-    try {
-      // Obtener el valor actual de 'tipo' de Firebase y establecerlo en el controlador
-      String userId = FirebaseAuth.instance.currentUser!.uid;
-      DocumentSnapshot userInfo = await FirebaseFirestore.instance.collection('usuarios').doc(userId).get();
-      String? tipoPermiso = userInfo['tipo'];
-      if (tipoPermiso != null) {
-        setState(() {
-          _tipoPermisoController.text = tipoPermiso;
-        });
-      }
-    } catch (e) {
-      print('Error al inicializar el valor del tipo de permiso: $e');
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -100,7 +93,27 @@ class _NuevoPermisoState extends State<NuevoPermiso> {
               controller: _tipoPermisoController,
               decoration: InputDecoration(labelText: 'Motivo de la Ausencia'),
             ),
-
+            SizedBox(height: 20),
+            InkWell(
+              onTap: () {
+                _selectDate(context);
+              },
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: 'Fecha del Permiso',
+                  border: OutlineInputBorder(),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      _selectedDate != null ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}' : 'Seleccionar fecha',
+                    ),
+                    Icon(Icons.calendar_today),
+                  ],
+                ),
+              ),
+            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _solicitarPermiso,

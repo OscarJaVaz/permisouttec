@@ -41,6 +41,8 @@ dependencies:
   firebase_auth:
   cloud_firestore:
   persistent_bottom_nav_bar:
+  table_calendar:
+  provider:
 
 dev_dependencies:
   flutter_test:
