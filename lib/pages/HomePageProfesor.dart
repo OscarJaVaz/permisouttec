@@ -158,47 +158,38 @@ class _HomePageProfesorState extends State<HomePageProfesor> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return Container(
-                child: Wrap(
-                  children: <Widget>[
-                    ListTile(
-                      leading: const Icon(Icons.add),
-                      title: const Text('Solicitar Permiso'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => NuevoPermiso()),
-                        ).then((_) {
-                          // Actualizar la lista de permisos después de que se solicite uno nuevo
-                          setState(() {});
-                        });
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.logout),
-                      title: const Text('Cerrar sesión'),
-                      onTap: () {
-                        FirebaseAuth.instance.signOut();
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => Login()),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-        tooltip: 'Opciones',
-        child: Icon(Icons.more_vert),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NuevoPermiso()),
+                ).then((_) {
+                  // Actualizar la lista de permisos después de que se solicite uno nuevo
+                  setState(() {});
+                });
+              },
+              icon: Icon(Icons.add_circle), // Icono para solicitar permiso
+              color: Colors.blue, // Color azul para el botón de permiso
+              tooltip: 'Solicitar Permiso',
+            ),
+            IconButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              },
+              icon: Icon(Icons.logout), // Icono para cerrar sesión
+              color: Colors.red, // Color rojo para el botón de cerrar sesión
+              tooltip: 'Cerrar sesión',
+            ),
+          ],
+        ),
       ),
     );
   }
