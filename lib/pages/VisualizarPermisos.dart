@@ -5,8 +5,14 @@ class VisualizarPermisos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Permisos Solicitados'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.only(top: 40.0),
+            child: Text('Permisos Solicitados'),
+          ),
+        ),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('permisos').snapshots(),
@@ -33,37 +39,53 @@ class VisualizarPermisos extends StatelessWidget {
               // Si el campo 'archivado' existe y es verdadero, se archiva el permiso
               final bool archivado = data != null && data.containsKey('archivado') ? data['archivado'] : false;
 
-              // Mostrar permisos no archivados para el directivo
+              // Mostrar permisos no archivados
               if (!archivado) {
-                return ListTile(
-                  title: Text('Tipo: ${doc['tipo']}'),
-                  subtitle: Text('Estado: $estado'),
-                  trailing: Wrap(
-                    spacing: 8,
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: ExpansionTile(
+                    title: ListTile(
+                      title: Text('Tipo: ${doc['tipo']}'),
+                      subtitle: Text('Estado: $estado'),
+                    ),
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Lógica para archivar permiso
-                          _updatePermissionStatus(doc.id, estado, true);
-                        },
-                        child: Text('Archivar'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              // Lógica para archivar permiso
+                              _updatePermissionStatus(doc.id, estado, true);
+                            },
+                            icon: Icon(Icons.archive),
+                            label: Text('Archivar'),
+                          ),
+                          if (estado == 'pendiente')
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                // Lógica para aprobar permiso
+                                _updatePermissionStatus(doc.id, 'aprobado', false);
+                              },
+                              icon: Icon(Icons.thumb_up),
+                              label: Text('Aprobar'),
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all<Color>(Colors.green), // Cambia el color de fondo
+                              ),
+                            ),
+                          if (estado == 'pendiente')
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                // Lógica para rechazar permiso
+                                _updatePermissionStatus(doc.id, 'rechazado', false);
+                              },
+                              icon: Icon(Icons.thumb_down),
+                              label: Text('Rechazar'),
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all<Color>(Colors.red), // Cambia el color de fondo
+                              ),
+                            ),
+                        ],
                       ),
-                      if (estado == 'pendiente')
-                        ElevatedButton(
-                          onPressed: () {
-                            // Lógica para aprobar permiso
-                            _updatePermissionStatus(doc.id, 'aprobado', false);
-                          },
-                          child: Text('Aprobar'),
-                        ),
-                      if (estado == 'pendiente')
-                        ElevatedButton(
-                          onPressed: () {
-                            // Lógica para rechazar permiso
-                            _updatePermissionStatus(doc.id, 'rechazado', false);
-                          },
-                          child: Text('Rechazar'),
-                        ),
                     ],
                   ),
                 );
