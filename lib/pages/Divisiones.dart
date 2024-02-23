@@ -9,12 +9,17 @@ class Divisiones extends StatelessWidget {
 
   // Método para cerrar sesión
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Divisiones'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0), // Ajusta la altura del AppBar según tus necesidades
+        child: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.only(top: 40.0), // Ajusta el valor para mover el texto hacia abajo
+            child: const Text('Divisiones'),
+          ),
+        ),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('divisiones').snapshots(),

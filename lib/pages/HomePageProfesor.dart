@@ -90,11 +90,12 @@ class _HomePageProfesorState extends State<HomePageProfesor> {
                     ListTile(
                       leading: const Icon(Icons.logout),
                       title: const Text('Cerrar sesión'),
-                      onTap: () {
-                        FirebaseAuth.instance.signOut();
-                        Navigator.pushReplacement(
+                      onTap: () async {
+                        await FirebaseAuth.instance.signOut();
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (context) => Login()),
+                              (route) => false, // Remove all routes from the stack
                         );
                       },
                     ),

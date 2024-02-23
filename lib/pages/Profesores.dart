@@ -3,23 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:permisouttec/pages/NuevoProfesor.dart';
 
 class Profesores extends StatefulWidget {
-  const Profesores({super.key});
+  const Profesores({Key? key});
 
   @override
   State<Profesores> createState() => _ProfesoresState();
 }
 
 class _ProfesoresState extends State<Profesores> {
-
   Future<void> _refreshData() async {
     // Puedes realizar aquí cualquier operación necesaria para actualizar los datos
     setState(() {});
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profesores'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0), // Ajusta la altura del AppBar según tus necesidades
+        child: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.only(top: 40.0), // Ajusta el valor para mover el texto hacia abajo
+            child: const Text('Profesores'),
+          ),
+          centerTitle: false,
+        ),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('profesores').snapshots(),
@@ -46,7 +53,7 @@ class _ProfesoresState extends State<Profesores> {
                     itemBuilder: (context, index) {
                       final DocumentSnapshot doc = docs[index];
                       return ListTile(
-                        leading: const Icon(Icons.business),
+                        leading: const Icon(Icons.person),
                         title: Text(doc["nombre"]),
                         subtitle: Text(doc["numero de empleado"]),
                         onTap: () {
@@ -83,7 +90,6 @@ class _ProfesoresState extends State<Profesores> {
                         );
                       },
                     ),
-
                   ],
                 ),
               );

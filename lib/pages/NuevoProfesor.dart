@@ -138,8 +138,14 @@ class _NuevoProfesorState extends State<NuevoProfesor> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Nuevo Profesor"),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0), // Ajusta la altura del AppBar según tus necesidades
+        child: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.only(top: 40.0), // Ajusta el valor para mover el texto hacia abajo
+            child: const Text("Nuevo Profesor"),
+          ),
+        ),
       ),
       body: SingleChildScrollView( // Envuelve todo el contenido en un SingleChildScrollView
         child: Padding(
@@ -234,14 +240,6 @@ class _NuevoProfesorState extends State<NuevoProfesor> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    onPressed: _seleccionValida ? _guardarDatos : null,
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.blue, // Cambia el color del botón a azul
-                    ),
-                    child: const Text('Guardar'),
-                  ),
-                  const SizedBox(width: 20), // Agrega un espacio entre los botones
                   Visibility(
                     visible: widget.idDoc.isNotEmpty,
                     child: ElevatedButton(
@@ -251,6 +249,14 @@ class _NuevoProfesorState extends State<NuevoProfesor> {
                       ),
                       child: const Text('Eliminar'),
                     ),
+                  ),
+                  const SizedBox(width: 20), // Agrega un espacio entre los botones
+                  ElevatedButton(
+                    onPressed: _seleccionValida ? _guardarDatos : null,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue, // Cambia el color del botón a azul
+                    ),
+                    child: const Text('Guardar'),
                   ),
                 ],
               ),

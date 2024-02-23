@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NuevaDivision extends StatefulWidget {
   final String idDoc;
@@ -62,8 +62,14 @@ class _NuevaDivisionState extends State<NuevaDivision> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Nueva División"),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80.0), // Ajusta la altura del AppBar según tus necesidades
+        child: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.only(top: 40.0), // Ajusta el valor para mover el texto hacia abajo
+            child: const Text("Nueva División"),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -82,14 +88,6 @@ class _NuevaDivisionState extends State<NuevaDivision> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: _guardarDatos,
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.blue, // Cambia el color del botón a azul
-                  ),
-                  child: const Text('Guardar'),
-                ),
-                const SizedBox(width: 20), // Agrega un espacio entre los botones
                 Visibility(
                   visible: widget.idDoc.isNotEmpty,
                   child: ElevatedButton(
@@ -99,6 +97,14 @@ class _NuevaDivisionState extends State<NuevaDivision> {
                     ),
                     child: const Text('Eliminar'),
                   ),
+                ),
+                const SizedBox(width: 20), // Agrega un espacio entre los botones
+                ElevatedButton(
+                  onPressed: _guardarDatos,
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.blue, // Cambia el color del botón a azul
+                  ),
+                  child: const Text('Guardar'),
                 ),
               ],
             ),

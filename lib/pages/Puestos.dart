@@ -3,23 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:permisouttec/pages/NuevoPuesto.dart';
 
 class Puestos extends StatefulWidget {
-  const Puestos({super.key});
+  const Puestos({Key? key});
 
   @override
   State<Puestos> createState() => _PuestosState();
 }
 
 class _PuestosState extends State<Puestos> {
-
   Future<void> _refreshData() async {
     // Puedes realizar aquí cualquier operación necesaria para actualizar los datos
     setState(() {});
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Puestos'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80), // Ajusta la altura del AppBar según tus necesidades
+        child: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.only(top: 40.0), // Ajusta el valor para mover el texto hacia abajo
+            child: const Text('Puestos'),
+          ),
+          centerTitle: false,
+        ),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('puestos').snapshots(),
@@ -46,7 +53,7 @@ class _PuestosState extends State<Puestos> {
                     itemBuilder: (context, index) {
                       final DocumentSnapshot doc = docs[index];
                       return ListTile(
-                        leading: const Icon(Icons.business),
+                        leading: const Icon(Icons.work),
                         title: Text(doc["codigo"]),
                         subtitle: Text(doc["nombre"]),
                         onTap: () {
@@ -83,7 +90,6 @@ class _PuestosState extends State<Puestos> {
                         );
                       },
                     ),
-
                   ],
                 ),
               );

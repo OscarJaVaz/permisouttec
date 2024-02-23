@@ -32,10 +32,9 @@ class LoginPageWithBackground extends StatelessWidget {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue, Colors.grey, Colors.black],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+          image: DecorationImage(
+            image: NetworkImage("https://wallpapercave.com/wp/wp2721266.jpg"), // URL de la imagen de fondo
+            fit: BoxFit.cover,
           ),
         ),
         child: const Login(),
@@ -43,4 +42,3 @@ class LoginPageWithBackground extends StatelessWidget {
     );
   }
 }
-

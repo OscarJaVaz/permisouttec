@@ -97,66 +97,70 @@ class _LoginState extends State<Login> {
       appBar: AppBar(
         title: Text('Permisos Uttec'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.network(
-              'https://cdn-icons-png.flaticon.com/512/5509/5509636.png',
-              width: 150,
-              height: 150,
-              fit: BoxFit.cover,
-            ),
-            Container(
-              alignment: Alignment.center,
-              child: Text(
-                'Bienvenido',
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              ),
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Correo electrónico'),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Contraseña',
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscureText ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: _togglePasswordVisibility,
-                ),
-              ),
-              obscureText: _obscureText,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: fnLogin,
-              child: Text('Iniciar sesión'),
-            ),
-            SizedBox(height: 10),
-            Row(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("¿Usuario nuevo?"),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RegistroPage()),
-                    );
-                  },
-                  child: Text("Regístrate aquí"),
+                Image.network(
+                  'https://cdn-icons-png.flaticon.com/512/5509/5509636.png',
+                  width: 150,
+                  height: 150,
+                  fit: BoxFit.cover,
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Bienvenido',
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(labelText: 'Correo electrónico'),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Contraseña',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: _togglePasswordVisibility,
+                    ),
+                  ),
+                  obscureText: _obscureText,
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: fnLogin,
+                  child: Text('Iniciar sesión'),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("¿Usuario nuevo?"),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => RegistroPage()),
+                        );
+                      },
+                      child: Text("Regístrate aquí"),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

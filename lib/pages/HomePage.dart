@@ -20,6 +20,41 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  // Método para mostrar una alerta de confirmación antes de cerrar sesión
+  Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // El usuario debe hacer clic en un botón para cerrar la alerta
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmación'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('¿Estás seguro de que quieres cerrar sesión?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar la alerta
+              },
+            ),
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar la alerta
+                _logout(context); // Cerrar sesión
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,30 +80,37 @@ class HomePage extends StatelessWidget {
           Profesores(), // Profesores
           VisualizarPermisos(), // VisualizarPermisos
           Divisiones(), // Divisiones
+          Container(), // Agregar una pantalla dummy para que coincida con la longitud de items
         ],
         items: [
           PersistentBottomNavBarItem(
-            icon: const Icon(Icons.work_outline), // Cambia el icono de acuerdo a tus necesidades
+            icon: const Icon(Icons.work_outline),
             title: "Puestos",
             activeColorPrimary: Colors.blue,
             inactiveColorPrimary: Colors.grey,
           ),
           PersistentBottomNavBarItem(
-            icon: const Icon(Icons.people_outline), // Cambia el icono de acuerdo a tus necesidades
+            icon: const Icon(Icons.people_outline),
             title: "Profesores",
             activeColorPrimary: Colors.blue,
             inactiveColorPrimary: Colors.grey,
           ),
           PersistentBottomNavBarItem(
-            icon: const Icon(Icons.visibility), // Cambia el icono de acuerdo a tus necesidades
+            icon: const Icon(Icons.visibility),
             title: "Permisos",
             activeColorPrimary: Colors.blue,
             inactiveColorPrimary: Colors.grey,
           ),
           PersistentBottomNavBarItem(
-            icon: const Icon(Icons.business), // Cambia el icono de acuerdo a tus necesidades
+            icon: const Icon(Icons.business),
             title: "Divisiones",
             activeColorPrimary: Colors.blue,
+            inactiveColorPrimary: Colors.grey,
+          ),
+          PersistentBottomNavBarItem(
+            icon: const Icon(Icons.logout), // Nuevo ícono para cerrar sesión
+            title: "Cerrar Sesión",
+            activeColorPrimary: Colors.red, // Puedes cambiar el color según tus preferencias
             inactiveColorPrimary: Colors.grey,
           ),
         ],
@@ -84,6 +126,12 @@ class HomePage extends StatelessWidget {
             topLeft: Radius.circular(10),
           ),
         ),
+        onItemSelected: (index) {
+          // Manejar la acción de cerrar sesión cuando se selecciona el ícono correspondiente
+          if (index == 4) {
+            _showLogoutConfirmationDialog(context); // Mostrar la alerta de confirmación
+          }
+        },
       ),
       // Anulamos el gesto de deslizamiento para cerrar sesión en la pantalla de inicio
       extendBody: true,
