@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:permisouttec/pages/Divisiones.dart';
 import 'package:permisouttec/pages/Profesores.dart';
 import 'package:permisouttec/pages/Puestos.dart';
+import 'package:permisouttec/pages/VerSolicitudesDirectivosPage.dart';
 import 'package:permisouttec/pages/VisualizarPermisos.dart';
 import 'package:permisouttec/pages/login.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -60,6 +61,17 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inicio'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.article_outlined), // Nuevo ícono para ver las solicitudes de directivos
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VerSolicitudesDirectivosPage()), // Navegar a la pantalla para ver las solicitudes de directivos
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: ConstrainedBox(
@@ -80,6 +92,7 @@ class HomePage extends StatelessWidget {
           Profesores(), // Profesores
           VisualizarPermisos(), // VisualizarPermisos
           Divisiones(), // Divisiones
+          VerSolicitudesDirectivosPage(),
           Container(), // Agregar una pantalla dummy para que coincida con la longitud de items
         ],
         items: [
@@ -108,6 +121,12 @@ class HomePage extends StatelessWidget {
             inactiveColorPrimary: Colors.grey,
           ),
           PersistentBottomNavBarItem(
+            icon: const Icon(Icons.article_outlined), // Nuevo ícono para ver las solicitudes de directivos
+            title: "Solicitudes",
+            activeColorPrimary: Colors.blue,
+            inactiveColorPrimary: Colors.grey,
+          ),
+          PersistentBottomNavBarItem(
             icon: const Icon(Icons.logout), // Nuevo ícono para cerrar sesión
             title: "Cerrar Sesión",
             activeColorPrimary: Colors.red, // Puedes cambiar el color según tus preferencias
@@ -128,7 +147,7 @@ class HomePage extends StatelessWidget {
         ),
         onItemSelected: (index) {
           // Manejar la acción de cerrar sesión cuando se selecciona el ícono correspondiente
-          if (index == 4) {
+          if (index == 5) {
             _showLogoutConfirmationDialog(context); // Mostrar la alerta de confirmación
           }
         },

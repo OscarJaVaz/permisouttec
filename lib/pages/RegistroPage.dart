@@ -18,15 +18,18 @@ class _RegistroPageState extends State<RegistroPage> {
 
   void _register() async {
     try {
+      // Registro normal de usuario
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
 
-      // Agregar el usuario a Firestore con el puesto seleccionado
+      // Agregar el usuario a Firestore con el puesto seleccionado y estado de solicitud
       await FirebaseFirestore.instance.collection('usuarios').doc(userCredential.user!.uid).set({
         'email': _emailController.text,
         'puesto': _selectedPuesto,
+        'solicitud_directivo': _selectedPuesto == 'Directivo', // Indica si el usuario solicita ser directivo
+        'aprobado_directivo': false // Indica si la solicitud de ser directivo ha sido aprobada
       });
 
       // Mostrar alerta de registro exitoso
@@ -35,7 +38,7 @@ class _RegistroPageState extends State<RegistroPage> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Registro exitoso'),
-            content: Text('Te has registrado correctamente.'),
+            content: Text('Tu solicitud de registro ha sido enviada. Deberá ser aprobada por un directivo en caso de que hayas solicitado ser un directivo, caso contrario omite este mensaje.'),
             actions: [
               TextButton(
                 onPressed: () {

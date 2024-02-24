@@ -23,6 +23,21 @@ class _LoginState extends State<Login> {
     });
   }
 
+  Future<bool> _checkDirectivoStatus(String userId) async {
+    try {
+      // Accede al documento del usuario en Firestore
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('usuarios').doc(userId).get();
+
+      // Verifica si el campo directivo está establecido en true
+      bool isDirectivo = userDoc['directivo'] ?? false;
+
+      return isDirectivo;
+    } catch (error) {
+      print('Error al verificar el estado de directivo: $error');
+      return false; // En caso de error, retorna false
+    }
+  }
+
   Future<void> fnLogin() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
@@ -36,39 +51,51 @@ class _LoginState extends State<Login> {
       user = userCredential.user;
       print('User found');
 
-      // Get user role from Firestore
-      DocumentSnapshot userInfo =
-      await FirebaseFirestore.instance.collection('usuarios').doc(user!.uid).get();
+      // Obtener información del usuario desde Firestore
+      DocumentSnapshot userInfo = await FirebaseFirestore.instance.collection('usuarios').doc(user!.uid).get();
       String? rol = userInfo['puesto'];
+      bool solicitudDirectivo = userInfo['solicitud_directivo'];
+      bool aprobadoDirectivo = userInfo['aprobado_directivo'];
 
-      // Redirect based on user role
-      if (rol == 'Directivo') {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-              (route) => false, // Remove all routes from the stack
-        );
-      } else if (rol == 'Profesor') {
-        setState(() {
-          // Limpiar cualquier estado previo
-          // Actualizar el estado de la aplicación para reflejar el nuevo usuario
-        });
+      if (solicitudDirectivo && !aprobadoDirectivo) {
+        // Si la solicitud está pendiente de aprobación, iniciar sesión como profesor
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomePageProfesor()),
-              (route) => false, // Remove all routes from the stack
+              (route) => false, // Eliminar todas las rutas del stack
         );
+      } else {
+        // Si no hay solicitud pendiente o si ya fue aprobada
+        if (rol == 'Directivo') {
+          // Si el rol es directivo, iniciar sesión como directivo
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+                (route) => false, // Eliminar todas las rutas del stack
+          );
+        } else if (rol == 'Profesor') {
+          // Si el rol es profesor, iniciar sesión como profesor
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => HomePageProfesor()),
+                (route) => false, // Eliminar todas las rutas del stack
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
-      print('error: ${e.code} ${e.message}');
+      print('Error: ${e.code} ${e.message}');
       if (e.code == 'user-not-found') {
-        print('no user found for that email');
+        print('No se encontró ningún usuario con ese correo electrónico');
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided');
+        print('Se proporcionó una contraseña incorrecta');
         showIncorrectCredentialsAlert();
       }
     }
   }
+
+
+
+
 
   void showIncorrectCredentialsAlert() {
     showDialog(

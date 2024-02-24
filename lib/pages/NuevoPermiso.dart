@@ -29,12 +29,14 @@ class _NuevoPermisoState extends State<NuevoPermiso> {
     try {
       // Verificar si el usuario actual es un profesor
       String userId = FirebaseAuth.instance.currentUser!.uid;
-      DocumentSnapshot userInfo = await FirebaseFirestore.instance.collection('usuarios').doc(userId).get();
+      DocumentSnapshot userInfo =
+      await FirebaseFirestore.instance.collection('usuarios').doc(userId).get();
       String? rol = userInfo['puesto'];
 
       if (rol == 'Profesor') {
         // Obtener el número de permisos de ausencia ya solicitados por el profesor
-        QuerySnapshot permisos = await FirebaseFirestore.instance.collection('permisos')
+        QuerySnapshot permisos = await FirebaseFirestore.instance
+            .collection('permisos')
             .where('usuarioId', isEqualTo: userId)
             .where('tipo', isEqualTo: 'ausencia')
             .where('estado', isEqualTo: 'aprobado')
@@ -48,6 +50,7 @@ class _NuevoPermisoState extends State<NuevoPermiso> {
             'tipo': _tipoPermisoController.text, // Utilizar el valor del TextField
             'fecha': _selectedDate, // Utilizar la fecha seleccionada
             'estado': 'pendiente',
+            'contador': 1, // Inicializar el contador en 1 para el nuevo permiso
           });
 
           // Mostrar un mensaje de éxito
@@ -77,6 +80,7 @@ class _NuevoPermisoState extends State<NuevoPermiso> {
       // Manejar errores de solicitud de permiso aquí
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

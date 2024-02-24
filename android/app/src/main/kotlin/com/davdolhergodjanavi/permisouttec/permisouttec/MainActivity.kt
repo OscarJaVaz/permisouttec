@@ -1,4 +1,4 @@
-package com.davdolhergodjanavi.permisouttec.permisouttec
+package com.davdolhergodjanavi.permisouttec
 
 import io.flutter.embedding.android.FlutterActivity
 
