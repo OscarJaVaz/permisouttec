@@ -245,7 +245,7 @@ class _NuevoProfesorState extends State<NuevoProfesor> {
                     child: ElevatedButton(
                       onPressed: _eliminarDatos,
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red, // Cambia el color del botón a rojo
+                        backgroundColor: Colors.red, // Cambia el color del botón a rojo
                       ),
                       child: const Text('Eliminar'),
                     ),
@@ -254,7 +254,7 @@ class _NuevoProfesorState extends State<NuevoProfesor> {
                   ElevatedButton(
                     onPressed: _seleccionValida ? _guardarDatos : null,
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.blue, // Cambia el color del botón a azul
+                      backgroundColor: Colors.blue, // Cambia el color del botón a azul
                     ),
                     child: const Text('Guardar'),
                   ),

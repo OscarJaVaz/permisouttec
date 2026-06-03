@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +7,8 @@ import 'package:permisouttec/pages/HomePageProfesor.dart';
 import 'package:permisouttec/pages/login.dart'; // Importa la página de inicio de sesión
 
 class RegistroPage extends StatefulWidget {
+  const RegistroPage({super.key});
+
   @override
   _RegistroPageState createState() => _RegistroPageState();
 }
@@ -55,7 +58,9 @@ class _RegistroPageState extends State<RegistroPage> {
         },
       );
     } catch (e) {
-      print('Error al registrar: $e');
+      if (kDebugMode) {
+        print('Error al registrar: $e');
+      }
       // Manejar errores de registro aquí
     }
   }
@@ -88,7 +93,7 @@ class _RegistroPageState extends State<RegistroPage> {
             ),
             SizedBox(height: 10),
             DropdownButtonFormField(
-              value: _selectedPuesto,
+              initialValue: _selectedPuesto,
               onChanged: (newValue) {
                 setState(() {
                   _selectedPuesto = newValue.toString();

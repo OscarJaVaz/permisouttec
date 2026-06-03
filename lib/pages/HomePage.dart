@@ -6,10 +6,10 @@ import 'package:permisouttec/pages/Puestos.dart';
 import 'package:permisouttec/pages/VerSolicitudesDirectivosPage.dart';
 import 'package:permisouttec/pages/VisualizarPermisos.dart';
 import 'package:permisouttec/pages/login.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   // Método para cerrar sesión
   Future<void> _logout(BuildContext context) async {
@@ -133,12 +133,11 @@ class HomePage extends StatelessWidget {
             inactiveColorPrimary: Colors.grey,
           ),
         ],
-        confineInSafeArea: true,
+        confineToSafeArea: true,
         backgroundColor: Colors.white,
         handleAndroidBackButtonPress: true,
         resizeToAvoidBottomInset: true,
         stateManagement: true,
-        hideNavigationBarWhenKeyboardShows: true,
         decoration: const NavBarDecoration(
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(10),
