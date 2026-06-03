@@ -34,10 +34,6 @@ class PermisoEstadoBadge extends StatelessWidget {
     final label = estado.isEmpty ? 'pendiente' : estado;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: _backgroundFor(label),
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Text(
         label.toUpperCase(),
         style: UttTextStyles.inter(

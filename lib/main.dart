@@ -8,13 +8,17 @@ import 'package:permisouttec/config/router/app_router.dart';
 import 'package:permisouttec/constants/enviroment.dart';
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
 import 'package:permisouttec/services/firebase_service.dart';
+import 'package:permisouttec/theme/utt_text_styles.dart';
+
+final _appTextTheme = GoogleFonts.interTextTheme();
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
   await FirebaseService.initialize();
   await initializeDateFormatting('es_MX');
   runApp(const ProviderScope(child: MyApp()));
 }
-
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
@@ -46,7 +50,7 @@ class MyApp extends ConsumerWidget {
           onSurface: LoginColors.onSurface,
         ),
         scaffoldBackgroundColor: LoginColors.background,
-        textTheme: GoogleFonts.interTextTheme(),
+        textTheme: _appTextTheme,
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
@@ -75,10 +79,7 @@ class MyApp extends ConsumerWidget {
               width: 2,
             ),
           ),
-          hintStyle: GoogleFonts.inter(
-            fontSize: 16,
-            color: LoginColors.outline.withValues(alpha: 0.7),
-          ),
+          hintStyle: UttTextStyles.inputHint,
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(

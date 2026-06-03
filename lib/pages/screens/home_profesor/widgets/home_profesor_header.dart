@@ -93,10 +93,6 @@ class _StatChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
       child: Text(
         '$label: $count',
         style: UttTextStyles.inter(12, color: color, weight: FontWeight.w600),

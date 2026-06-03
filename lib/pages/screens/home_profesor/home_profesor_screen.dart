@@ -205,11 +205,7 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
       ],
     );
 
-    return UttMotion.motion(
-      context,
-      section,
-      (w) => w.animate().fadeIn(duration: UttMotion.fast, curve: UttMotion.easeOut),
-    );
+    return section;
   }
 
   Widget _buildEmptyGlobal() {
@@ -323,9 +319,13 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
   }
 
   Widget _buildLoading() {
-    return Center(
-      child: const CircularProgressIndicator(color: LoginColors.deepEmerald),
-    ).animate().fadeIn(duration: UttMotion.medium, curve: UttMotion.easeOut);
+    return UttMotion.motion(
+      context,
+      const Center(
+        child: CircularProgressIndicator(color: LoginColors.deepEmerald),
+      ),
+      (w) => w.animate().fadeIn(duration: UttMotion.medium, curve: UttMotion.easeOut),
+    );
   }
 
   @override

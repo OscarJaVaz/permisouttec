@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:permisouttec/config/theme/app_motion.dart';
 
 Future<T?> showAnimatedDialog<T>({
@@ -17,20 +16,19 @@ Future<T?> showAnimatedDialog<T>({
       return Center(
         child: Material(
           color: Colors.transparent,
-          child: child
-              .animate()
-              .fadeIn(duration: UttMotion.medium, curve: UttMotion.easeOut)
-              .scale(
-                begin: const Offset(0.92, 0.92),
-                end: const Offset(1, 1),
-                duration: UttMotion.medium,
-                curve: UttMotion.easeOut,
-              ),
+          child: child,
         ),
       );
     },
     transitionBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(opacity: animation, child: child);
+      final curved = CurvedAnimation(parent: animation, curve: UttMotion.easeOut);
+      return FadeTransition(
+        opacity: curved,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.92, end: 1).animate(curved),
+          child: child,
+        ),
+      );
     },
   );
 }

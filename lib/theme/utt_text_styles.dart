@@ -3,6 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
 
 abstract final class UttTextStyles {
+  static final TextStyle inputHint = inter(
+    16,
+    color: LoginColors.outline.withValues(alpha: 0.7),
+  );
+
   static TextStyle montserrat(
     double size,
     FontWeight weight, {

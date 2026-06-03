@@ -76,7 +76,7 @@ class _VerSolicitudesDirectivosPageState
 
   @override
   Widget build(BuildContext context) {
-    final stream = ref.watch(usuariosDatasourceProvider).streamSolicitudesDirectivo();
+    final solicitudesAsync = ref.watch(solicitudesDirectivoStreamProvider);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -89,30 +89,20 @@ class _VerSolicitudesDirectivosPageState
           centerTitle: false,
         ),
       ),
-      body: StreamBuilder<List<RtdbRecord>>(
-        stream: stream,
-        builder: (BuildContext context, AsyncSnapshot<List<RtdbRecord>> snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          final records = snapshot.data ?? [];
+      body: solicitudesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text('Error: $error')),
+        data: (records) {
           if (records.isEmpty) {
             return const Center(
               child: Text('No hay solicitudes de directivos.'),
             );
           }
 
-          return ListView(
-            children: records.map((RtdbRecord record) {
+          return ListView.builder(
+            itemCount: records.length,
+            itemBuilder: (context, index) {
+              final RtdbRecord record = records[index];
               final String userId = record.id;
               final String email = record.string('email') ?? '';
               final String puesto = record.string('puesto') ?? '';
@@ -133,7 +123,7 @@ class _VerSolicitudesDirectivosPageState
                   ],
                 ),
               );
-            }).toList(),
+            },
           );
         },
       ),

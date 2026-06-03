@@ -2,25 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/config/router/app_routes.dart';
-import 'package:permisouttec/infraestructure/rtdb/rtdb_record.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
 import 'package:permisouttec/providers/permisos_provider.dart';
 
-class Puestos extends ConsumerStatefulWidget {
+class Puestos extends ConsumerWidget {
   const Puestos({super.key});
 
   @override
-  ConsumerState<Puestos> createState() => _PuestosState();
-}
-
-class _PuestosState extends ConsumerState<Puestos> {
-  Future<void> _refreshData() async {
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final stream = ref.watch(puestosDatasourceProvider).streamAll();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final puestosAsync = ref.watch(puestosStreamProvider);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -33,44 +23,31 @@ class _PuestosState extends ConsumerState<Puestos> {
           centerTitle: false,
         ),
       ),
-      body: StreamBuilder<List<RtdbRecord>>(
-        stream: stream,
-        builder: (context, AsyncSnapshot<List<RtdbRecord>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error al cargar los datos'));
-          }
-          final records = snapshot.data ?? [];
+      body: puestosAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const Center(child: Text('Error al cargar los datos')),
+        data: (records) {
           if (records.isEmpty) {
             return const Center(child: Text('Sin registros'));
           }
           return RefreshIndicator(
-            onRefresh: _refreshData,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: records.length,
-                    itemBuilder: (context, index) {
-                      final record = records[index];
-                      return ListTile(
-                        leading: const Icon(Icons.work),
-                        title: Text(record.string('codigo') ?? ''),
-                        subtitle: Text(record.string('nombre') ?? ''),
-                        onTap: () {
-                          ref.read(nuevoPuestoDocIdProvider.notifier).state =
-                              record.id;
-                          context.push(AppRoutes.nuevoPuesto);
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
+            onRefresh: () async => ref.invalidate(puestosStreamProvider),
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: records.length,
+              itemBuilder: (context, index) {
+                final record = records[index];
+                return ListTile(
+                  leading: const Icon(Icons.work),
+                  title: Text(record.string('codigo') ?? ''),
+                  subtitle: Text(record.string('nombre') ?? ''),
+                  onTap: () {
+                    ref.read(nuevoPuestoDocIdProvider.notifier).state =
+                        record.id;
+                    context.push(AppRoutes.nuevoPuesto);
+                  },
+                );
+              },
             ),
           );
         },

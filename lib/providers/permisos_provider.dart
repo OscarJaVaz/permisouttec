@@ -32,3 +32,28 @@ final puestosDatasourceProvider = Provider<PuestosDatasource>((ref) {
 final divisionesDatasourceProvider = Provider<DivisionesDatasource>((ref) {
   return DivisionesDatasource(ref.watch(firebaseDatabaseProvider));
 });
+
+/// Streams RTDB estables; evitan recrear suscripciones en cada rebuild.
+final profesoresStreamProvider =
+    StreamProvider.autoDispose<List<RtdbRecord>>((ref) {
+  return ref.watch(profesoresDatasourceProvider).streamAll();
+});
+
+final puestosStreamProvider = StreamProvider.autoDispose<List<RtdbRecord>>((ref) {
+  return ref.watch(puestosDatasourceProvider).streamAll();
+});
+
+final divisionesStreamProvider =
+    StreamProvider.autoDispose<List<RtdbRecord>>((ref) {
+  return ref.watch(divisionesDatasourceProvider).streamAll();
+});
+
+final permisosAllStreamProvider =
+    StreamProvider.autoDispose<List<RtdbRecord>>((ref) {
+  return ref.watch(permisosDatasourceProvider).streamAll();
+});
+
+final solicitudesDirectivoStreamProvider =
+    StreamProvider.autoDispose<List<RtdbRecord>>((ref) {
+  return ref.watch(usuariosDatasourceProvider).streamSolicitudesDirectivo();
+});

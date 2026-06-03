@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:permisouttec/infraestructure/rtdb/rtdb_record.dart';
 import 'package:permisouttec/providers/permisos_provider.dart';
 
 class VisualizarPermisos extends ConsumerWidget {
@@ -8,7 +7,7 @@ class VisualizarPermisos extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stream = ref.watch(permisosDatasourceProvider).streamAll();
+    final permisosAsync = ref.watch(permisosAllStreamProvider);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -20,97 +19,87 @@ class VisualizarPermisos extends ConsumerWidget {
           ),
         ),
       ),
-      body: StreamBuilder<List<RtdbRecord>>(
-        stream: stream,
-        builder: (context, AsyncSnapshot<List<RtdbRecord>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error al cargar los datos'));
-          }
-          final records = snapshot.data ?? [];
-          if (records.isEmpty) {
+      body: permisosAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const Center(child: Text('Error al cargar los datos')),
+        data: (records) {
+          final visibleRecords = records
+              .where((record) => !record.boolValue('archivado'))
+              .toList();
+          if (visibleRecords.isEmpty) {
             return const Center(child: Text('Sin registros'));
           }
           return ListView.builder(
-            itemCount: records.length,
+            itemCount: visibleRecords.length,
             itemBuilder: (context, index) {
-              final record = records[index];
+              final record = visibleRecords[index];
               final String estado = record.string('estado') ?? '';
-              final bool archivado = record.boolValue('archivado');
-
-              if (!archivado) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 16.0,
+                ),
+                child: ExpansionTile(
+                  title: ListTile(
+                    title: Text('Tipo: ${record.string('tipo')}'),
+                    subtitle: Text('Estado: $estado'),
                   ),
-                  child: ExpansionTile(
-                    title: ListTile(
-                      title: Text('Tipo: ${record.string('tipo')}'),
-                      subtitle: Text('Estado: $estado'),
-                    ),
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            _updatePermissionStatus(
+                              ref,
+                              record.id,
+                              estado,
+                              true,
+                            );
+                          },
+                          icon: const Icon(Icons.archive),
+                          label: const Text('Archivar'),
+                        ),
+                        if (estado == 'pendiente')
                           ElevatedButton.icon(
                             onPressed: () {
                               _updatePermissionStatus(
                                 ref,
                                 record.id,
-                                estado,
-                                true,
+                                'aprobado',
+                                false,
                               );
                             },
-                            icon: const Icon(Icons.archive),
-                            label: const Text('Archivar'),
+                            icon: const Icon(Icons.thumb_up),
+                            label: const Text('Aprobar'),
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all<Color>(
+                                Colors.green,
+                              ),
+                            ),
                           ),
-                          if (estado == 'pendiente')
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                _updatePermissionStatus(
-                                  ref,
-                                  record.id,
-                                  'aprobado',
-                                  false,
-                                );
-                              },
-                              icon: const Icon(Icons.thumb_up),
-                              label: const Text('Aprobar'),
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.all<Color>(
-                                  Colors.green,
-                                ),
-                              ),
+                        if (estado == 'pendiente')
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              _updatePermissionStatus(
+                                ref,
+                                record.id,
+                                'rechazado',
+                                false,
+                              );
+                            },
+                            icon: const Icon(Icons.thumb_down),
+                            label: const Text('Rechazar'),
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  WidgetStateProperty.all<Color>(Colors.red),
                             ),
-                          if (estado == 'pendiente')
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                _updatePermissionStatus(
-                                  ref,
-                                  record.id,
-                                  'rechazado',
-                                  false,
-                                );
-                              },
-                              icon: const Icon(Icons.thumb_down),
-                              label: const Text('Rechazar'),
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.all<Color>(Colors.red),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
             },
           );
         },

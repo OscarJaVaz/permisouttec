@@ -35,13 +35,9 @@ class PermisoDayCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
+              SizedBox(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(
-                  color: LoginColors.deepEmerald.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
-                ),
                 child: const Icon(
                   Icons.event_note_outlined,
                   color: LoginColors.deepEmerald,

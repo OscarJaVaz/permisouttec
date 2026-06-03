@@ -10,20 +10,36 @@ import 'package:permisouttec/pages/screens/visualizar_permisos/visualizar_permis
 import 'package:permisouttec/providers/auth_provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
-  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  late final PersistentTabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = PersistentTabController(initialIndex: 0);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _logout(BuildContext context) async {
     await ref.read(authRepositoryProvider).signOut();
     if (context.mounted) {
       context.go(AppRoutes.login);
     }
   }
 
-  Future<void> _showLogoutConfirmationDialog(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
+  Future<void> _showLogoutConfirmationDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -46,7 +62,7 @@ class HomePage extends ConsumerWidget {
               child: const Text('Aceptar'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                _logout(context, ref);
+                _logout(context);
               },
             ),
           ],
@@ -56,7 +72,7 @@ class HomePage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inicio'),
@@ -81,7 +97,7 @@ class HomePage extends ConsumerWidget {
       ),
       bottomNavigationBar: PersistentTabView(
         context,
-        controller: PersistentTabController(initialIndex: 0),
+        controller: _tabController,
         screens: [
           const Puestos(),
           const Profesores(),
@@ -141,7 +157,7 @@ class HomePage extends ConsumerWidget {
         ),
         onItemSelected: (index) {
           if (index == 5) {
-            _showLogoutConfirmationDialog(context, ref);
+            _showLogoutConfirmationDialog(context);
           }
         },
       ),
