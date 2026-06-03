@@ -6,8 +6,8 @@ class HomeProfesorHeader extends StatelessWidget {
   const HomeProfesorHeader({
     super.key,
     required this.displayName,
-    this.pendientes = 0,
-    this.aprobados = 0,
+    required this.pendientes,
+    required this.aprobados,
   });
 
   final String displayName;
@@ -16,94 +16,90 @@ class HomeProfesorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
+        Hero(
+          tag: 'utt-logo',
+          child: Material(
+            color: Colors.transparent,
+            child: SizedBox(
               width: 56,
-              height: 48,
+              height: 56,
               child: Image.asset(
                 'assets/images/utt_logo.png',
                 fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hola, $displayName',
+                style: UttTextStyles.montserrat(
+                  22,
+                  FontWeight.w600,
+                  color: LoginColors.deepEmerald,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Tus permisos y ausencias',
+                style: UttTextStyles.inter(
+                  14,
+                  color: LoginColors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
                 children: [
-                  Text(
-                    'Hola, $displayName',
-                    style: UttTextStyles.montserrat(
-                      22,
-                      FontWeight.w600,
-                      color: LoginColors.deepEmerald,
-                    ),
+                  _StatChip(
+                    label: 'Pendientes',
+                    count: pendientes,
+                    color: LoginColors.secondary,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Mis permisos y ausencias',
-                    style: UttTextStyles.inter(
-                      14,
-                      color: LoginColors.onSurfaceVariant,
-                    ),
+                  const SizedBox(width: 10),
+                  _StatChip(
+                    label: 'Aprobados',
+                    count: aprobados,
+                    color: LoginColors.deepEmerald,
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-        if (pendientes > 0 || aprobados > 0) ...[
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if (pendientes > 0)
-                _SummaryChip(
-                  label: '$pendientes pendiente${pendientes == 1 ? '' : 's'}',
-                  background: LoginColors.institutionalGold.withValues(alpha: 0.2),
-                  foreground: LoginColors.secondary,
-                ),
-              if (aprobados > 0)
-                _SummaryChip(
-                  label: '$aprobados aprobado${aprobados == 1 ? '' : 's'}',
-                  background: LoginColors.deepEmerald.withValues(alpha: 0.12),
-                  foreground: LoginColors.deepEmerald,
-                ),
             ],
           ),
-        ],
+        ),
       ],
     );
   }
 }
 
-class _SummaryChip extends StatelessWidget {
-  const _SummaryChip({
+class _StatChip extends StatelessWidget {
+  const _StatChip({
     required this.label,
-    required this.background,
-    required this.foreground,
+    required this.count,
+    required this.color,
   });
 
   final String label;
-  final Color background;
-  final Color foreground;
+  final int count;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(20),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        label,
-        style: UttTextStyles.inter(12, color: foreground, weight: FontWeight.w600),
+        '$label: $count',
+        style: UttTextStyles.inter(12, color: color, weight: FontWeight.w600),
       ),
     );
   }

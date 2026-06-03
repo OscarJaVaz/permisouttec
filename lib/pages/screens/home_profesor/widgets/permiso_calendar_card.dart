@@ -17,137 +17,111 @@ class PermisoCalendarCard extends StatelessWidget {
   final DateTime focusedDay;
   final DateTime selectedDay;
   final List<RtdbRecord> records;
-  final void Function(DateTime selectedDay, DateTime focusedDay) onDaySelected;
+  final void Function(DateTime selected, DateTime focused) onDaySelected;
 
-  Color _colorForEstado(String estado) {
-    switch (estado.toLowerCase()) {
-      case 'aprobado':
-        return LoginColors.deepEmerald;
-      case 'rechazado':
-        return const Color(0xFFB3261E);
-      default:
-        return LoginColors.secondary;
-    }
+  List<RtdbRecord> _activeRecords() {
+    return records.where((r) => !r.boolValue('archivado')).toList();
   }
 
-  List<Color> _eventsForDay(DateTime day) {
-    final colors = <Color>[];
-    for (final record in records) {
-      if (record.boolValue('archivado')) continue;
-      if (!RtdbDateHelper.isSameDay(record.data['fecha'], day)) continue;
-      final estado = record.string('estado') ?? 'pendiente';
-      colors.add(_colorForEstado(estado));
+  Set<DateTime> _daysWithPermisos() {
+    final days = <DateTime>{};
+    for (final record in _activeRecords()) {
+      final fecha = RtdbDateHelper.fromValue(record.data['fecha']);
+      if (fecha != null) {
+        days.add(DateTime(fecha.year, fecha.month, fecha.day));
+      }
     }
-    return colors;
+    return days;
   }
 
   @override
   Widget build(BuildContext context) {
+    final markedDays = _daysWithPermisos();
+
     return Container(
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: LoginColors.paperWhite,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: LoginColors.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: LoginColors.deepEmerald.withValues(alpha: 0.06),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
-        child: TableCalendar<Color>(
-          focusedDay: focusedDay,
-          firstDay: DateTime.utc(2010, 1, 1),
-          lastDay: DateTime.utc(2030, 12, 31),
-          selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-          calendarFormat: CalendarFormat.month,
-          startingDayOfWeek: StartingDayOfWeek.monday,
-          onDaySelected: onDaySelected,
-          eventLoader: _eventsForDay,
-          calendarStyle: CalendarStyle(
-            outsideDaysVisible: false,
-            weekendTextStyle: UttTextStyles.inter(14, color: LoginColors.onSurfaceVariant),
-            defaultTextStyle: UttTextStyles.inter(14),
-            selectedDecoration: const BoxDecoration(
-              color: LoginColors.deepEmerald,
-              shape: BoxShape.circle,
-            ),
-            selectedTextStyle: UttTextStyles.inter(
-              14,
-              color: LoginColors.onPrimary,
-              weight: FontWeight.w600,
-            ),
-            todayDecoration: BoxDecoration(
-              color: LoginColors.institutionalGold.withValues(alpha: 0.35),
-              shape: BoxShape.circle,
-            ),
-            todayTextStyle: UttTextStyles.inter(14, weight: FontWeight.w600),
-            markerSize: 6,
-            markersMaxCount: 3,
-            markerDecoration: const BoxDecoration(
-              color: LoginColors.deepEmerald,
-              shape: BoxShape.circle,
-            ),
+      child: TableCalendar<void>(
+        firstDay: DateTime.utc(2020, 1, 1),
+        lastDay: DateTime.utc(2035, 12, 31),
+        focusedDay: focusedDay,
+        selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+        onDaySelected: onDaySelected,
+        calendarFormat: CalendarFormat.month,
+        startingDayOfWeek: StartingDayOfWeek.monday,
+        locale: 'es_MX',
+        headerStyle: HeaderStyle(
+          titleCentered: true,
+          formatButtonVisible: false,
+          titleTextStyle: UttTextStyles.montserrat(16, FontWeight.w600),
+          leftChevronIcon: const Icon(
+            Icons.chevron_left,
+            color: LoginColors.deepEmerald,
           ),
-          headerStyle: HeaderStyle(
-            titleCentered: true,
-            formatButtonVisible: true,
-            titleTextStyle: UttTextStyles.montserrat(17, FontWeight.w600),
-            formatButtonTextStyle: UttTextStyles.inter(
-              12,
-              color: LoginColors.deepEmerald,
-              weight: FontWeight.w600,
-            ),
-            formatButtonDecoration: BoxDecoration(
-              border: Border.all(color: LoginColors.outlineVariant),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            leftChevronIcon: const Icon(
-              Icons.chevron_left,
-              color: LoginColors.deepEmerald,
-            ),
-            rightChevronIcon: const Icon(
-              Icons.chevron_right,
-              color: LoginColors.deepEmerald,
-            ),
+          rightChevronIcon: const Icon(
+            Icons.chevron_right,
+            color: LoginColors.deepEmerald,
           ),
-          daysOfWeekStyle: DaysOfWeekStyle(
-            weekdayStyle: UttTextStyles.inter(
-              12,
-              color: LoginColors.onSurfaceVariant,
-              weight: FontWeight.w600,
-            ),
-            weekendStyle: UttTextStyles.inter(
-              12,
-              color: LoginColors.onSurfaceVariant,
-              weight: FontWeight.w600,
-            ),
+        ),
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: UttTextStyles.inter(12, color: LoginColors.outline),
+          weekendStyle: UttTextStyles.inter(12, color: LoginColors.outline),
+        ),
+        calendarStyle: CalendarStyle(
+          outsideDaysVisible: false,
+          defaultTextStyle: UttTextStyles.inter(14),
+          weekendTextStyle: UttTextStyles.inter(14),
+          selectedDecoration: const BoxDecoration(
+            color: LoginColors.deepEmerald,
+            shape: BoxShape.circle,
           ),
-          calendarBuilders: CalendarBuilders(
-            markerBuilder: (context, date, events) {
-              if (events.isEmpty) return const SizedBox.shrink();
-              return Positioned(
-                bottom: 2,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: events.take(3).map((color) {
-                    return Container(
-                      width: 6,
-                      height: 6,
-                      margin: const EdgeInsets.symmetric(horizontal: 1),
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
-                      ),
-                    );
-                  }).toList(),
+          selectedTextStyle: UttTextStyles.inter(
+            14,
+            color: LoginColors.onPrimary,
+            weight: FontWeight.w600,
+          ),
+          todayDecoration: BoxDecoration(
+            color: LoginColors.deepEmerald.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+          ),
+          todayTextStyle: UttTextStyles.inter(
+            14,
+            color: LoginColors.deepEmerald,
+            weight: FontWeight.w600,
+          ),
+          markerDecoration: const BoxDecoration(
+            color: LoginColors.institutionalGold,
+            shape: BoxShape.circle,
+          ),
+          markersMaxCount: 1,
+        ),
+        calendarBuilders: CalendarBuilders(
+          markerBuilder: (context, day, events) {
+            final normalized = DateTime(day.year, day.month, day.day);
+            if (!markedDays.contains(normalized)) return null;
+            return Positioned(
+              bottom: 1,
+              child: Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: LoginColors.institutionalGold,
+                  shape: BoxShape.circle,
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

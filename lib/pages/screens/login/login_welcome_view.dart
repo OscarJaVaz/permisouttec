@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permisouttec/config/theme/app_motion.dart';
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
+import 'package:permisouttec/widgets/entrance_animation.dart';
+import 'package:permisouttec/widgets/pressable_scale.dart';
 
 class LoginWelcomeView extends StatelessWidget {
   const LoginWelcomeView({
@@ -32,11 +35,12 @@ class LoginWelcomeView extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
+  Widget _buildLogo() {
+    return Hero(
+      tag: 'utt-logo',
+      child: Material(
+        color: Colors.transparent,
+        child: SizedBox(
           width: 140,
           height: 100,
           child: Stack(
@@ -60,6 +64,16 @@ class LoginWelcomeView extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return EntranceStaggerColumn(
+      spacing: 0,
+      children: [
+        _buildLogo(),
         const SizedBox(height: 32),
         Text(
           'Hola, $displayName',
@@ -75,24 +89,9 @@ class LoginWelcomeView extends StatelessWidget {
         const SizedBox(height: 48),
         SizedBox(
           width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: isLoading ? null : onBiometricLogin,
-            icon: isLoading
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: LoginColors.onPrimary,
-                    ),
-                  )
-                : const Icon(Icons.fingerprint, size: 26),
-            label: Text(
-              isLoading ? 'Validando...' : 'Acceso biométrico',
-              style: _montserrat(18, FontWeight.w600).copyWith(
-                color: LoginColors.onPrimary,
-              ),
-            ),
+          child: PressableFilledButton(
+            enabled: !isLoading,
+            onPressed: onBiometricLogin,
             style: FilledButton.styleFrom(
               backgroundColor: LoginColors.deepEmerald,
               foregroundColor: LoginColors.onPrimary,
@@ -104,6 +103,43 @@ class LoginWelcomeView extends StatelessWidget {
               ),
               elevation: 4,
               shadowColor: LoginColors.deepEmerald.withValues(alpha: 0.25),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedSwitcher(
+                  duration: UttMotion.fast,
+                  switchInCurve: UttMotion.easeOut,
+                  switchOutCurve: UttMotion.easeOut,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(scale: animation, child: child),
+                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          key: ValueKey('loading'),
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: LoginColors.onPrimary,
+                          ),
+                        )
+                      : const Icon(
+                          key: ValueKey('fingerprint'),
+                          Icons.fingerprint,
+                          size: 26,
+                          color: LoginColors.onPrimary,
+                        ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  isLoading ? 'Validando...' : 'Acceso biométrico',
+                  style: _montserrat(18, FontWeight.w600).copyWith(
+                    color: LoginColors.onPrimary,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

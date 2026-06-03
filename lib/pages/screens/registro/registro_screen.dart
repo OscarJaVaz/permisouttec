@@ -6,11 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permisouttec/config/router/app_routes.dart';
+import 'package:permisouttec/config/theme/app_motion.dart';
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
 import 'package:permisouttec/pages/screens/login/widgets/login_text_field.dart';
 import 'package:permisouttec/pages/screens/registro/widgets/registro_dropdown_field.dart';
 import 'package:permisouttec/services/rtdb_auth_sync.dart';
+import 'package:permisouttec/widgets/animated_dialog.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
+import 'package:permisouttec/widgets/entrance_animation.dart';
+import 'package:permisouttec/widgets/pressable_scale.dart';
 
 class RegistroPage extends ConsumerStatefulWidget {
   const RegistroPage({super.key});
@@ -95,20 +99,29 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
           );
 
       if (!mounted) return;
-      await showDialog<void>(
+      await showAnimatedDialog<void>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: const Text('Registro exitoso'),
-          content: const Text(
+        child: AlertDialog(
+          backgroundColor: LoginColors.paperWhite,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            'Registro exitoso',
+            style: _montserrat(18, FontWeight.w600, color: LoginColors.deepEmerald),
+          ),
+          content: Text(
             'Tu solicitud de registro ha sido enviada. Deberá ser aprobada por un directivo en caso de que hayas solicitado ser un directivo; en caso contrario, omite este mensaje.',
+            style: _inter(14, color: LoginColors.onSurfaceVariant),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(dialogContext).pop();
+                Navigator.of(context).pop();
                 context.go(AppRoutes.login);
               },
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: _inter(14, color: LoginColors.deepEmerald, weight: FontWeight.w600),
+              ),
             ),
           ],
         ),
@@ -159,14 +172,19 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Comienza tu registro',
-                style: _montserrat(24, FontWeight.w600, color: LoginColors.deepEmerald),
+              EntranceFadeSlide(
+                child: Text(
+                  'Comienza tu registro',
+                  style: _montserrat(24, FontWeight.w600, color: LoginColors.deepEmerald),
+                ),
               ),
               const SizedBox(height: 8),
-              Text(
-                'Crea tu cuenta institucional para acceder al portal',
-                style: _inter(16, color: LoginColors.onSurfaceVariant),
+              EntranceFadeSlide(
+                index: 1,
+                child: Text(
+                  'Crea tu cuenta institucional para acceder al portal',
+                  style: _inter(16, color: LoginColors.onSurfaceVariant),
+                ),
               ),
               const SizedBox(height: 32),
               FocusTraversalGroup(
@@ -182,6 +200,7 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
+                      entranceIndex: 2,
                     ),
                     const SizedBox(height: 20),
                     LoginTextField(
@@ -193,12 +212,21 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => DismissKeyboard.unfocus(context),
+                      entranceIndex: 3,
                       suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: LoginColors.outline,
+                        icon: AnimatedSwitcher(
+                          duration: UttMotion.fast,
+                          switchInCurve: UttMotion.easeOut,
+                          switchOutCurve: UttMotion.easeOut,
+                          transitionBuilder: (child, animation) =>
+                              ScaleTransition(scale: animation, child: child),
+                          child: Icon(
+                            key: ValueKey<bool>(_obscurePassword),
+                            _obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: LoginColors.outline,
+                          ),
                         ),
                         onPressed: () {
                           setState(() => _obscurePassword = !_obscurePassword);
@@ -206,129 +234,142 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    RegistroDropdownField(
-                      label: 'Puesto',
-                      hint: 'Selecciona tu puesto',
-                      value: _selectedPuesto,
-                      items: [
-                        const DropdownMenuItem<String>(
-                          value: null,
-                          child: Text('Selecciona tu puesto'),
-                        ),
-                        ..._puestos.map(
-                          (puesto) => DropdownMenuItem(
-                            value: puesto,
-                            child: Text(puesto),
+                    EntranceFadeSlide(
+                      index: 4,
+                      child: RegistroDropdownField(
+                        label: 'Puesto',
+                        hint: 'Selecciona tu puesto',
+                        value: _selectedPuesto,
+                        items: [
+                          const DropdownMenuItem<String>(
+                            value: null,
+                            child: Text('Selecciona tu puesto'),
                           ),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        setState(() => _selectedPuesto = value);
-                      },
+                          ..._puestos.map(
+                            (puesto) => DropdownMenuItem(
+                              value: puesto,
+                              child: Text(puesto),
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() => _selectedPuesto = value);
+                        },
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: Checkbox(
-                            value: _privacyAccepted,
-                            activeColor: LoginColors.deepEmerald,
-                            side: const BorderSide(color: LoginColors.outlineVariant),
-                            onChanged: (value) {
-                              setState(() => _privacyAccepted = value ?? false);
-                            },
+                    EntranceFadeSlide(
+                      index: 5,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: Checkbox(
+                              value: _privacyAccepted,
+                              activeColor: LoginColors.deepEmerald,
+                              side: const BorderSide(color: LoginColors.outlineVariant),
+                              onChanged: (value) {
+                                setState(() => _privacyAccepted = value ?? false);
+                              },
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() => _privacyAccepted = !_privacyAccepted);
-                            },
-                            child: Text.rich(
-                              TextSpan(
-                                style: _inter(12, color: LoginColors.onSurfaceVariant),
-                                children: [
-                                  const TextSpan(text: 'Acepto el '),
-                                  TextSpan(
-                                    text: 'Aviso de Privacidad',
-                                    style: _inter(
-                                      12,
-                                      color: LoginColors.deepEmerald,
-                                      weight: FontWeight.w600,
-                                    ).copyWith(decoration: TextDecoration.underline),
-                                  ),
-                                  const TextSpan(
-                                    text: ' y los términos de uso institucional.',
-                                  ),
-                                ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() => _privacyAccepted = !_privacyAccepted);
+                              },
+                              child: Text.rich(
+                                TextSpan(
+                                  style: _inter(12, color: LoginColors.onSurfaceVariant),
+                                  children: [
+                                    const TextSpan(text: 'Acepto el '),
+                                    TextSpan(
+                                      text: 'Aviso de Privacidad',
+                                      style: _inter(
+                                        12,
+                                        color: LoginColors.deepEmerald,
+                                        weight: FontWeight.w600,
+                                      ).copyWith(decoration: TextDecoration.underline),
+                                    ),
+                                    const TextSpan(
+                                      text: ' y los términos de uso institucional.',
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 28),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Focus(
-                        skipTraversal: true,
-                        child: FilledButton(
-                        onPressed: _isLoading ? null : _register,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: LoginColors.deepEmerald,
-                          foregroundColor: LoginColors.onPrimary,
-                          disabledBackgroundColor:
-                              LoginColors.deepEmerald.withValues(alpha: 0.6),
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 4,
-                          shadowColor: LoginColors.deepEmerald.withValues(alpha: 0.25),
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: LoginColors.onPrimary,
-                                ),
-                              )
-                            : Text(
-                                'Registrarse',
-                                style: _montserrat(18, FontWeight.w700).copyWith(
-                                  color: LoginColors.onPrimary,
-                                ),
+                    EntranceFadeSlide(
+                      index: 6,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Focus(
+                          skipTraversal: true,
+                          child: PressableFilledButton(
+                            enabled: !_isLoading,
+                            onPressed: _register,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: LoginColors.deepEmerald,
+                              foregroundColor: LoginColors.onPrimary,
+                              disabledBackgroundColor:
+                                  LoginColors.deepEmerald.withValues(alpha: 0.6),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                      ),
+                              elevation: 4,
+                              shadowColor: LoginColors.deepEmerald.withValues(alpha: 0.25),
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: LoginColors.onPrimary,
+                                    ),
+                                  )
+                                : Text(
+                                    'Registrarse',
+                                    style: _montserrat(18, FontWeight.w700).copyWith(
+                                      color: LoginColors.onPrimary,
+                                    ),
+                                  ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 40),
-              Center(
-                child: TextButton(
-                  onPressed: () => context.go(AppRoutes.login),
-                  child: Text.rich(
-                    TextSpan(
-                      style: _inter(16, color: LoginColors.onSurfaceVariant),
-                      children: [
-                        const TextSpan(text: '¿Ya tienes una cuenta? '),
-                        TextSpan(
-                          text: 'Iniciar sesión',
-                          style: _inter(
-                            16,
-                            color: LoginColors.deepEmerald,
-                            weight: FontWeight.w700,
+              EntranceFadeSlide(
+                index: 7,
+                child: Center(
+                  child: TextButton(
+                    onPressed: () => context.go(AppRoutes.login),
+                    child: Text.rich(
+                      TextSpan(
+                        style: _inter(16, color: LoginColors.onSurfaceVariant),
+                        children: [
+                          const TextSpan(text: '¿Ya tienes una cuenta? '),
+                          TextSpan(
+                            text: 'Iniciar sesión',
+                            style: _inter(
+                              16,
+                              color: LoginColors.deepEmerald,
+                              weight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

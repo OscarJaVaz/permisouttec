@@ -7,36 +7,44 @@ class PermisoEstadoBadge extends StatelessWidget {
 
   final String estado;
 
+  Color _backgroundFor(String value) {
+    switch (value.toLowerCase()) {
+      case 'aprobado':
+        return LoginColors.deepEmerald.withValues(alpha: 0.12);
+      case 'rechazado':
+        return Colors.red.shade50;
+      default:
+        return LoginColors.surfaceSubtle;
+    }
+  }
+
+  Color _foregroundFor(String value) {
+    switch (value.toLowerCase()) {
+      case 'aprobado':
+        return LoginColors.deepEmerald;
+      case 'rechazado':
+        return Colors.red.shade800;
+      default:
+        return LoginColors.secondary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final normalized = estado.toLowerCase();
-    final (background, foreground, label) = switch (normalized) {
-      'aprobado' => (
-          LoginColors.deepEmerald.withValues(alpha: 0.12),
-          LoginColors.deepEmerald,
-          'Aprobado',
-        ),
-      'rechazado' => (
-          const Color(0xFFB3261E).withValues(alpha: 0.12),
-          const Color(0xFFB3261E),
-          'Rechazado',
-        ),
-      _ => (
-          LoginColors.institutionalGold.withValues(alpha: 0.2),
-          LoginColors.secondary,
-          'Pendiente',
-        ),
-    };
-
+    final label = estado.isEmpty ? 'pendiente' : estado;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: background,
+        color: _backgroundFor(label),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        label,
-        style: UttTextStyles.inter(12, color: foreground, weight: FontWeight.w600),
+        label.toUpperCase(),
+        style: UttTextStyles.inter(
+          11,
+          color: _foregroundFor(label),
+          weight: FontWeight.w700,
+        ).copyWith(letterSpacing: 0.6),
       ),
     );
   }

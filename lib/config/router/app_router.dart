@@ -68,55 +68,94 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => const HomePage(),
+        pageBuilder: (context, state) => fadeTransitionPage(
+          key: state.pageKey,
+          child: const HomePage(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.homeProfesor,
-        builder: (context, state) => const HomePageProfesor(),
+        pageBuilder: (context, state) => fadeTransitionPage(
+          key: state.pageKey,
+          child: const HomePageProfesor(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.homeDirectivo,
-        builder: (context, state) => const HomePageDirectivo(),
+        pageBuilder: (context, state) => fadeTransitionPage(
+          key: state.pageKey,
+          child: const HomePageDirectivo(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.profesores,
-        builder: (context, state) => const Profesores(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const Profesores(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.puestos,
-        builder: (context, state) => const Puestos(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const Puestos(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.divisiones,
-        builder: (context, state) => const Divisiones(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const Divisiones(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.permisos,
-        builder: (context, state) => const Permisos(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const Permisos(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.visualizarPermisos,
-        builder: (context, state) => const VisualizarPermisos(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const VisualizarPermisos(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.verSolicitudesDirectivos,
-        builder: (context, state) => const VerSolicitudesDirectivosPage(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const VerSolicitudesDirectivosPage(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.nuevoPermiso,
-        builder: (context, state) => const NuevoPermiso(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const NuevoPermiso(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.nuevoProfesor,
-        builder: (context, state) => const NuevoProfesor(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const NuevoProfesor(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.nuevoPuesto,
-        builder: (context, state) => const NuevoPuesto(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const NuevoPuesto(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.nuevaDivision,
-        builder: (context, state) => const NuevaDivision(),
+        pageBuilder: (context, state) => slideTransitionPage(
+          key: state.pageKey,
+          child: const NuevaDivision(),
+        ),
       ),
     ],
   );

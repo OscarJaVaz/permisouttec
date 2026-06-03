@@ -1,11 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:permisouttec/config/router/app_router.dart';
 import 'package:permisouttec/constants/enviroment.dart';
+import 'package:permisouttec/pages/screens/login/colors_login.dart';
 import 'package:permisouttec/services/firebase_service.dart';
 
 Future<void> main() async {
   await FirebaseService.initialize();
+  await initializeDateFormatting('es_MX');
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -19,8 +25,71 @@ class MyApp extends ConsumerWidget {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: Enviroment.appTitle,
+      locale: const Locale('es', 'MX'),
+      supportedLocales: const [
+        Locale('es', 'MX'),
+        Locale('es'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
-        primarySwatch: Colors.lightBlue,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: LoginColors.deepEmerald,
+          primary: LoginColors.deepEmerald,
+          onPrimary: LoginColors.onPrimary,
+          secondary: LoginColors.secondary,
+          surface: LoginColors.paperWhite,
+          onSurface: LoginColors.onSurface,
+        ),
+        scaffoldBackgroundColor: LoginColors.background,
+        textTheme: GoogleFonts.interTextTheme(),
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          },
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: LoginColors.paperWhite,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 18,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: LoginColors.outlineVariant),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: LoginColors.outlineVariant),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(
+              color: LoginColors.deepEmerald,
+              width: 2,
+            ),
+          ),
+          hintStyle: GoogleFonts.inter(
+            fontSize: 16,
+            color: LoginColors.outline.withValues(alpha: 0.7),
+          ),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: LoginColors.deepEmerald,
+            foregroundColor: LoginColors.onPrimary,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
       ),
       routerConfig: router,
     );

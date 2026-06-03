@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/config/router/app_routes.dart';
+import 'package:permisouttec/config/theme/app_motion.dart';
 import 'package:permisouttec/infraestructure/rtdb/rtdb_date_helper.dart';
 import 'package:permisouttec/infraestructure/rtdb/rtdb_record.dart';
 import 'package:permisouttec/pages/screens/home_profesor/widgets/home_profesor_bottom_bar.dart';
@@ -14,6 +16,7 @@ import 'package:permisouttec/pages/screens/login/colors_login.dart';
 import 'package:permisouttec/providers/auth_provider.dart';
 import 'package:permisouttec/providers/permisos_provider.dart';
 import 'package:permisouttec/theme/utt_text_styles.dart';
+import 'package:permisouttec/widgets/entrance_animation.dart';
 
 class HomePageProfesor extends ConsumerStatefulWidget {
   const HomePageProfesor({super.key});
@@ -27,6 +30,7 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
   late DateTime _selectedDay;
   late DateTime _focusedDay;
   bool _isSigningOut = false;
+  bool _hasPlayedEntrance = false;
 
   @override
   void initState() {
@@ -63,6 +67,13 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
 
   String _formatFecha(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  void _markEntrancePlayed() {
+    if (_hasPlayedEntrance) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _hasPlayedEntrance = true);
+    });
   }
 
   void _showPermisoDetails(RtdbRecord record, DateTime fecha) {
@@ -124,11 +135,16 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
     }
   }
 
+  Widget _wrapEntrance(Widget child, int index) {
+    if (_hasPlayedEntrance) return child;
+    return EntranceFadeSlide(index: index, child: child);
+  }
+
   Widget _buildDaySection(List<RtdbRecord> dayRecords) {
     final dayLabel =
         'Permisos del ${_selectedDay.day}/${_selectedDay.month}/${_selectedDay.year}';
 
-    return Column(
+    final section = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -188,6 +204,12 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
           }),
       ],
     );
+
+    return UttMotion.motion(
+      context,
+      section,
+      (w) => w.animate().fadeIn(duration: UttMotion.fast, curve: UttMotion.easeOut),
+    );
   }
 
   Widget _buildEmptyGlobal() {
@@ -224,12 +246,13 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
   }
 
   Widget _buildPermisosContent(List<RtdbRecord> records) {
+    _markEntrancePlayed();
     final active = _activeRecords(records);
 
     if (active.isEmpty) {
       return Column(
         children: [
-          Expanded(child: _buildEmptyGlobal()),
+          Expanded(child: _wrapEntrance(_buildEmptyGlobal(), 0)),
           HomeProfesorBottomBar(
             isLoading: _isSigningOut,
             onSolicitarPermiso: () => context.push(AppRoutes.nuevoPermiso),
@@ -253,24 +276,38 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  HomeProfesorHeader(
-                    displayName: _displayName,
-                    pendientes: pendientes,
-                    aprobados: aprobados,
+                  _wrapEntrance(
+                    HomeProfesorHeader(
+                      displayName: _displayName,
+                      pendientes: pendientes,
+                      aprobados: aprobados,
+                    ),
+                    0,
                   ),
                   const SizedBox(height: 20),
-                  PermisoCalendarCard(
-                    focusedDay: _focusedDay,
-                    selectedDay: _selectedDay,
-                    records: records,
-                    onDaySelected: (selected, focused) {
-                      setState(() {
-                        _selectedDay = selected;
-                        _focusedDay = focused;
-                      });
-                    },
+                  _wrapEntrance(
+                    PermisoCalendarCard(
+                      focusedDay: _focusedDay,
+                      selectedDay: _selectedDay,
+                      records: records,
+                      onDaySelected: (selected, focused) {
+                        setState(() {
+                          _selectedDay = selected;
+                          _focusedDay = focused;
+                        });
+                      },
+                    ),
+                    1,
                   ),
-                  _buildDaySection(dayRecords),
+                  AnimatedSwitcher(
+                    duration: UttMotion.medium,
+                    switchInCurve: UttMotion.easeOut,
+                    switchOutCurve: UttMotion.easeOut,
+                    child: KeyedSubtree(
+                      key: ValueKey<DateTime>(_selectedDay),
+                      child: _buildDaySection(dayRecords),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -285,6 +322,12 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
     );
   }
 
+  Widget _buildLoading() {
+    return Center(
+      child: const CircularProgressIndicator(color: LoginColors.deepEmerald),
+    ).animate().fadeIn(duration: UttMotion.medium, curve: UttMotion.easeOut);
+  }
+
   @override
   Widget build(BuildContext context) {
     final permisosAsync =
@@ -294,9 +337,7 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
       backgroundColor: LoginColors.background,
       body: permisosAsync.when(
         skipLoadingOnReload: true,
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: LoginColors.deepEmerald),
-        ),
+        loading: () => _buildLoading(),
         error: (_, __) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -307,7 +348,17 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
             ),
           ),
         ),
-        data: _buildPermisosContent,
+        data: (records) {
+          return AnimatedSwitcher(
+            duration: UttMotion.medium,
+            switchInCurve: UttMotion.easeOut,
+            switchOutCurve: UttMotion.easeOut,
+            child: KeyedSubtree(
+              key: const ValueKey('permisos-content'),
+              child: _buildPermisosContent(records),
+            ),
+          );
+        },
       ),
     );
   }

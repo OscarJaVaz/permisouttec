@@ -16,18 +16,9 @@ class PermisoDayCard extends StatelessWidget {
   final String fechaLabel;
   final VoidCallback? onTap;
 
-  IconData _iconForTipo(String? tipo) {
-    final t = (tipo ?? '').toLowerCase();
-    if (t.contains('enfermedad') || t.contains('dolor')) {
-      return Icons.medical_services_outlined;
-    }
-    if (t.contains('personal')) return Icons.person_outline;
-    return Icons.event_note_outlined;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final tipo = record.string('tipo') ?? 'Sin tipo';
+    final tipo = record.string('tipo') ?? 'Permiso';
     final estado = record.string('estado') ?? 'pendiente';
 
     return Material(
@@ -41,16 +32,8 @@ class PermisoDayCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: LoginColors.outlineVariant),
-            boxShadow: [
-              BoxShadow(
-                color: LoginColors.deepEmerald.withValues(alpha: 0.06),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 44,
@@ -59,10 +42,9 @@ class PermisoDayCard extends StatelessWidget {
                   color: LoginColors.deepEmerald.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  _iconForTipo(tipo),
+                child: const Icon(
+                  Icons.event_note_outlined,
                   color: LoginColors.deepEmerald,
-                  size: 24,
                 ),
               ),
               const SizedBox(width: 14),
@@ -74,7 +56,7 @@ class PermisoDayCard extends StatelessWidget {
                       tipo,
                       style: UttTextStyles.montserrat(16, FontWeight.w600),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       fechaLabel,
                       style: UttTextStyles.inter(
@@ -82,13 +64,10 @@ class PermisoDayCard extends StatelessWidget {
                         color: LoginColors.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    PermisoEstadoBadge(estado: estado),
                   ],
                 ),
               ),
-              if (onTap != null)
-                Icon(Icons.chevron_right, color: LoginColors.outline, size: 22),
+              PermisoEstadoBadge(estado: estado),
             ],
           ),
         ),
