@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
+import 'package:permisouttec/providers/permisos_provider.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 import 'package:permisouttec/widgets/form_text_field.dart';
 
@@ -24,19 +24,15 @@ class _NuevoPuestoState extends ConsumerState<NuevoPuesto> {
 
   Future<void> _guardarDatos() async {
     try {
+      final ds = ref.read(puestosDatasourceProvider);
+      final data = {
+        'codigo': _codigoController.text,
+        'nombre': _nombreController.text,
+      };
       if (_idDoc.isNotEmpty) {
-        await FirebaseFirestore.instance
-            .collection('puestos')
-            .doc(_idDoc)
-            .update({
-          'codigo': _codigoController.text,
-          'nombre': _nombreController.text,
-        });
+        await ds.update(_idDoc, data);
       } else {
-        await FirebaseFirestore.instance.collection('puestos').add({
-          'codigo': _codigoController.text,
-          'nombre': _nombreController.text,
-        });
+        await ds.create(data);
       }
       if (mounted) {
         ref.read(nuevoPuestoDocIdProvider.notifier).state = null;
@@ -52,10 +48,7 @@ class _NuevoPuestoState extends ConsumerState<NuevoPuesto> {
 
   Future<void> _eliminarDatos() async {
     try {
-      await FirebaseFirestore.instance
-          .collection('puestos')
-          .doc(_idDoc)
-          .delete();
+      await ref.read(puestosDatasourceProvider).delete(_idDoc);
       if (mounted) {
         ref.read(nuevoPuestoDocIdProvider.notifier).state = null;
         context.pop();
@@ -75,13 +68,10 @@ class _NuevoPuestoState extends ConsumerState<NuevoPuesto> {
     _codigoController.text = '';
     _nombreController.text = '';
     if (_idDoc.isNotEmpty) {
-      FirebaseFirestore.instance
-          .collection('puestos')
-          .doc(_idDoc)
-          .get()
-          .then((value) {
-        _codigoController.text = value['codigo'];
-        _nombreController.text = value['nombre'];
+      ref.read(puestosDatasourceProvider).getById(_idDoc).then((value) {
+        if (value == null) return;
+        _codigoController.text = value['codigo']?.toString() ?? '';
+        _nombreController.text = value['nombre']?.toString() ?? '';
       });
     }
   }

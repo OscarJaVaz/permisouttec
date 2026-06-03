@@ -1,30 +1,75 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_date_helper.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_paths.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_record.dart';
 
 class PermisosDatasource {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  PermisosDatasource(this._database);
 
-  CollectionReference<Map<String, dynamic>> get permisos =>
-      _firestore.collection('permisos');
+  final FirebaseDatabase _database;
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> streamByUsuario(String userId) {
-    return permisos.where('usuarioId', isEqualTo: userId).snapshots();
+  DatabaseReference get _permisos => _database.ref(RtdbPaths.permisos);
+
+  Stream<List<RtdbRecord>> streamByUsuario(String userId) {
+    return _permisos
+        .orderByChild('usuarioId')
+        .equalTo(userId)
+        .onValue
+        .map(_snapshotToRecords);
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> streamAll() =>
-      permisos.snapshots();
+  Stream<List<RtdbRecord>> streamAll() =>
+      _permisos.onValue.map(_snapshotToRecords);
 
-  Future<void> addPermiso(Map<String, dynamic> data) => permisos.add(data);
+  Future<String> addPermiso(Map<String, dynamic> data) async {
+    final ref = _permisos.push();
+    await ref.set(data);
+    return ref.key!;
+  }
 
   Future<void> updatePermiso(String id, Map<String, dynamic> data) =>
-      permisos.doc(id).update(data);
+      _permisos.child(id).update(data);
 
-  Future<QuerySnapshot<Map<String, dynamic>>> countAusenciasAprobadas(
+  Future<List<RtdbRecord>> findByUsuarioAndFecha(
     String userId,
-  ) {
-    return permisos
-        .where('usuarioId', isEqualTo: userId)
-        .where('tipo', isEqualTo: 'ausencia')
-        .where('estado', isEqualTo: 'aprobado')
-        .get();
+    DateTime fecha,
+  ) async {
+    final records = await getByUsuario(userId);
+    return records
+        .where((r) => RtdbDateHelper.isSameDay(r.data['fecha'], fecha))
+        .toList();
+  }
+
+  Future<List<RtdbRecord>> getByUsuario(String userId) async {
+    final snapshot =
+        await _permisos.orderByChild('usuarioId').equalTo(userId).get();
+    return _snapshotDataToRecords(snapshot);
+  }
+
+  Future<int> countAusenciasAprobadas(String userId) async {
+    final records = await getByUsuario(userId);
+    return records
+        .where(
+          (r) =>
+              r.string('tipo') == 'ausencia' && r.string('estado') == 'aprobado',
+        )
+        .length;
+  }
+
+  List<RtdbRecord> _snapshotToRecords(DatabaseEvent event) =>
+      _snapshotDataToRecords(event.snapshot);
+
+  List<RtdbRecord> _snapshotDataToRecords(DataSnapshot snapshot) {
+    final value = snapshot.value;
+    if (value == null) return [];
+    final map = Map<dynamic, dynamic>.from(value as Map);
+    return map.entries
+        .map(
+          (e) => RtdbRecord(
+            id: e.key.toString(),
+            data: Map<dynamic, dynamic>.from(e.value as Map),
+          ),
+        )
+        .toList();
   }
 }

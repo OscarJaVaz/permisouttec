@@ -1,9 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/config/router/app_routes.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_record.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
+import 'package:permisouttec/providers/permisos_provider.dart';
 
 class Profesores extends ConsumerStatefulWidget {
   const Profesores({super.key});
@@ -19,6 +20,8 @@ class _ProfesoresState extends ConsumerState<Profesores> {
 
   @override
   Widget build(BuildContext context) {
+    final stream = ref.watch(profesoresDatasourceProvider).streamAll();
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80.0),
@@ -30,19 +33,19 @@ class _ProfesoresState extends ConsumerState<Profesores> {
           centerTitle: false,
         ),
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('profesores').snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      body: StreamBuilder<List<RtdbRecord>>(
+        stream: stream,
+        builder: (context, AsyncSnapshot<List<RtdbRecord>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
             return const Center(child: Text('Error al cargar los datos'));
           }
-          if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
+          final records = snapshot.data ?? [];
+          if (records.isEmpty) {
             return const Center(child: Text('Sin registros'));
           }
-          final docs = snapshot.data!.docs;
           return RefreshIndicator(
             onRefresh: _refreshData,
             child: SingleChildScrollView(
@@ -51,16 +54,16 @@ class _ProfesoresState extends ConsumerState<Profesores> {
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: docs.length,
+                    itemCount: records.length,
                     itemBuilder: (context, index) {
-                      final DocumentSnapshot doc = docs[index];
+                      final record = records[index];
                       return ListTile(
                         leading: const Icon(Icons.person),
-                        title: Text(doc['nombre']),
-                        subtitle: Text(doc['numero de empleado']),
+                        title: Text(record.string('nombre') ?? ''),
+                        subtitle: Text(record.string('numero de empleado') ?? ''),
                         onTap: () {
                           ref.read(nuevoProfesorDocIdProvider.notifier).state =
-                              doc.id;
+                              record.id;
                           context.push(AppRoutes.nuevoProfesor);
                         },
                       );

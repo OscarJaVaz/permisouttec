@@ -1,0 +1,39 @@
+{
+  "rules": {
+    "usuarios": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('usuarios').child(auth.uid).child('puesto').val() == 'Directivo')",
+        ".write": "auth != null && (auth.uid == $uid || root.child('usuarios').child(auth.uid).child('puesto').val() == 'Directivo')",
+        "solicitud_directivo": {
+          ".write": "auth != null && root.child('usuarios').child(auth.uid).child('puesto').val() == 'Directivo'"
+        },
+        "aprobado_directivo": {
+          ".write": "auth != null && root.child('usuarios').child(auth.uid).child('puesto').val() == 'Directivo'"
+        },
+        "puesto": {
+          ".write": "auth != null && (auth.uid == $uid || root.child('usuarios').child(auth.uid).child('puesto').val() == 'Directivo')"
+        }
+      },
+      ".indexOn": ["solicitud_directivo"]
+    },
+    "permisos": {
+      ".read": "auth != null",
+      "$permisoId": {
+        ".write": "auth != null && (!data.exists() && newData.child('usuarioId').val() == auth.uid || data.child('usuarioId').val() == auth.uid || root.child('usuarios').child(auth.uid).child('puesto').val() == 'Directivo')"
+      },
+      ".indexOn": ["usuarioId", "fecha"]
+    },
+    "profesores": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('usuarios').child(auth.uid).child('puesto').val() == 'Directivo'"
+    },
+    "puestos": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('usuarios').child(auth.uid).child('puesto').val() == 'Directivo'"
+    },
+    "divisiones": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('usuarios').child(auth.uid).child('puesto').val() == 'Directivo'"
+    }
+  }
+}

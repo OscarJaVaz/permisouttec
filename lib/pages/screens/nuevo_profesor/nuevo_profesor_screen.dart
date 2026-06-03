@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
+import 'package:permisouttec/providers/permisos_provider.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 import 'package:permisouttec/widgets/form_text_field.dart';
 
@@ -42,23 +42,21 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
     _puestoController = TextEditingController();
 
     if (_idDoc.isNotEmpty) {
-      FirebaseFirestore.instance
-          .collection('profesores')
-          .doc(_idDoc)
-          .get()
-          .then((value) {
+      ref.read(profesoresDatasourceProvider).getById(_idDoc).then((value) {
+        if (value == null || !mounted) return;
         setState(() {
-          _numeroController.text = value['numero de empleado'];
-          _nombreController.text = value['nombre'];
-          _horasController.text = value['horas por semana'];
-          _diasController.text = value['dias de descanso permitidos'];
-          valorExistenteDelCampoDivision = value['division'];
+          _numeroController.text = value['numero de empleado']?.toString() ?? '';
+          _nombreController.text = value['nombre']?.toString() ?? '';
+          _horasController.text = value['horas por semana']?.toString() ?? '';
+          _diasController.text =
+              value['dias de descanso permitidos']?.toString() ?? '';
+          valorExistenteDelCampoDivision = value['division']?.toString();
           if (!division.contains(valorExistenteDelCampoDivision)) {
             _divisionController.text = '';
           } else {
             _divisionController.text = valorExistenteDelCampoDivision!;
           }
-          _puestoController.text = value['puesto'];
+          _puestoController.text = value['puesto']?.toString() ?? '';
           _seleccionValida = true;
         });
       });
@@ -72,27 +70,19 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
 
   Future<void> _guardarDatos() async {
     try {
+      final ds = ref.read(profesoresDatasourceProvider);
+      final data = {
+        'numero de empleado': _numeroController.text,
+        'nombre': _nombreController.text,
+        'horas por semana': _horasController.text,
+        'dias de descanso permitidos': _diasController.text,
+        'division': _divisionController.text,
+        'puesto': _puestoController.text,
+      };
       if (_idDoc.isNotEmpty) {
-        await FirebaseFirestore.instance
-            .collection('profesores')
-            .doc(_idDoc)
-            .update({
-          'numero de empleado': _numeroController.text,
-          'nombre': _nombreController.text,
-          'horas por semana': _horasController.text,
-          'dias de descanso permitidos': _diasController.text,
-          'division': _divisionController.text,
-          'puesto': _puestoController.text,
-        });
+        await ds.update(_idDoc, data);
       } else {
-        await FirebaseFirestore.instance.collection('profesores').add({
-          'numero de empleado': _numeroController.text,
-          'nombre': _nombreController.text,
-          'horas por semana': _horasController.text,
-          'dias de descanso permitidos': _diasController.text,
-          'division': _divisionController.text,
-          'puesto': _puestoController.text,
-        });
+        await ds.create(data);
       }
       if (mounted) {
         ref.read(nuevoProfesorDocIdProvider.notifier).state = null;
@@ -108,10 +98,7 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
 
   Future<void> _eliminarDatos() async {
     try {
-      await FirebaseFirestore.instance
-          .collection('profesores')
-          .doc(_idDoc)
-          .delete();
+      await ref.read(profesoresDatasourceProvider).delete(_idDoc);
       if (mounted) {
         ref.read(nuevoProfesorDocIdProvider.notifier).state = null;
         context.pop();
@@ -127,30 +114,20 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
   List<String> division = [];
 
   Future<void> cargarDivisiones() async {
-    final divisionesSnapshot =
-        await FirebaseFirestore.instance.collection('divisiones').get();
+    final nombres = await ref.read(divisionesDatasourceProvider).listNombres();
 
     setState(() {
-      division = divisionesSnapshot.docs
-          .map((doc) => doc['nombre'] as String?)
-          .where((nombre) => nombre != null)
-          .cast<String>()
-          .toList();
+      division = nombres;
     });
   }
 
   List<String> puestos = [];
 
   Future<void> cargarPuestos() async {
-    final puestosSnapshot =
-        await FirebaseFirestore.instance.collection('puestos').get();
+    final nombres = await ref.read(puestosDatasourceProvider).listNombres();
 
     setState(() {
-      puestos = puestosSnapshot.docs
-          .map((doc) => doc['nombre'] as String?)
-          .where((nombre) => nombre != null)
-          .cast<String>()
-          .toList();
+      puestos = nombres;
     });
   }
 

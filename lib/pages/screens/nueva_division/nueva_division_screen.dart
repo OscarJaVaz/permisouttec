@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
+import 'package:permisouttec/providers/permisos_provider.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 import 'package:permisouttec/widgets/form_text_field.dart';
 
@@ -20,21 +20,18 @@ class _NuevaDivisionState extends ConsumerState<NuevaDivision> {
   late final String _idDoc;
   final FocusNode _codigoFocusNode = FocusNode();
   final FocusNode _nombreFocusNode = FocusNode();
+
   Future<void> _guardarDatos() async {
     try {
+      final ds = ref.read(divisionesDatasourceProvider);
+      final data = {
+        'codigo': _codigoDivisionController.text,
+        'nombre': _nombreDivisionController.text,
+      };
       if (_idDoc.isNotEmpty) {
-        await FirebaseFirestore.instance
-            .collection('divisiones')
-            .doc(_idDoc)
-            .update({
-          'codigo': _codigoDivisionController.text,
-          'nombre': _nombreDivisionController.text,
-        });
+        await ds.update(_idDoc, data);
       } else {
-        await FirebaseFirestore.instance.collection('divisiones').add({
-          'codigo': _codigoDivisionController.text,
-          'nombre': _nombreDivisionController.text,
-        });
+        await ds.create(data);
       }
       if (mounted) {
         ref.read(nuevaDivisionDocIdProvider.notifier).state = null;
@@ -50,10 +47,7 @@ class _NuevaDivisionState extends ConsumerState<NuevaDivision> {
 
   Future<void> _eliminarDatos() async {
     try {
-      await FirebaseFirestore.instance
-          .collection('divisiones')
-          .doc(_idDoc)
-          .delete();
+      await ref.read(divisionesDatasourceProvider).delete(_idDoc);
       if (mounted) {
         ref.read(nuevaDivisionDocIdProvider.notifier).state = null;
         context.pop();
@@ -73,13 +67,10 @@ class _NuevaDivisionState extends ConsumerState<NuevaDivision> {
     _codigoDivisionController.text = '';
     _nombreDivisionController.text = '';
     if (_idDoc.isNotEmpty) {
-      FirebaseFirestore.instance
-          .collection('divisiones')
-          .doc(_idDoc)
-          .get()
-          .then((value) {
-        _codigoDivisionController.text = value['codigo'];
-        _nombreDivisionController.text = value['nombre'];
+      ref.read(divisionesDatasourceProvider).getById(_idDoc).then((value) {
+        if (value == null) return;
+        _codigoDivisionController.text = value['codigo']?.toString() ?? '';
+        _nombreDivisionController.text = value['nombre']?.toString() ?? '';
       });
     }
   }

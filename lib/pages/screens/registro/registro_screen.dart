@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permisouttec/providers/permisos_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,16 +9,17 @@ import 'package:permisouttec/config/router/app_routes.dart';
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
 import 'package:permisouttec/pages/screens/login/widgets/login_text_field.dart';
 import 'package:permisouttec/pages/screens/registro/widgets/registro_dropdown_field.dart';
+import 'package:permisouttec/services/rtdb_auth_sync.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 
-class RegistroPage extends StatefulWidget {
+class RegistroPage extends ConsumerStatefulWidget {
   const RegistroPage({super.key});
 
   @override
-  State<RegistroPage> createState() => _RegistroPageState();
+  ConsumerState<RegistroPage> createState() => _RegistroPageState();
 }
 
-class _RegistroPageState extends State<RegistroPage> {
+class _RegistroPageState extends ConsumerState<RegistroPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
@@ -80,15 +82,17 @@ class _RegistroPageState extends State<RegistroPage> {
         password: _passwordController.text,
       );
 
-      await FirebaseFirestore.instance
-          .collection('usuarios')
-          .doc(userCredential.user!.uid)
-          .set({
-        'email': _emailController.text.trim(),
-        'puesto': _selectedPuesto,
-        'solicitud_directivo': _selectedPuesto == 'Directivo',
-        'aprobado_directivo': false,
-      });
+      await syncAuthTokenForRtdb();
+
+      await ref.read(usuariosDatasourceProvider).setUsuario(
+            userCredential.user!.uid,
+            {
+              'email': _emailController.text.trim(),
+              'puesto': _selectedPuesto,
+              'solicitud_directivo': _selectedPuesto == 'Directivo',
+              'aprobado_directivo': false,
+            },
+          );
 
       if (!mounted) return;
       await showDialog<void>(
@@ -270,7 +274,9 @@ class _RegistroPageState extends State<RegistroPage> {
                     const SizedBox(height: 28),
                     SizedBox(
                       width: double.infinity,
-                      child: FilledButton(
+                      child: Focus(
+                        skipTraversal: true,
+                        child: FilledButton(
                         onPressed: _isLoading ? null : _register,
                         style: FilledButton.styleFrom(
                           backgroundColor: LoginColors.deepEmerald,
@@ -299,6 +305,7 @@ class _RegistroPageState extends State<RegistroPage> {
                                   color: LoginColors.onPrimary,
                                 ),
                               ),
+                      ),
                       ),
                     ),
                   ],

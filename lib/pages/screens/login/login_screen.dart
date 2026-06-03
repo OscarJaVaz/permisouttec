@@ -40,11 +40,6 @@ class _LoginState extends ConsumerState<Login> {
 
   void _focusPasswordField() => _passwordFocusNode.requestFocus();
 
-  void _submitLogin() {
-    DismissKeyboard.unfocus(context);
-    if (!_isLoading) fnLogin();
-  }
-
   void _togglePasswordVisibility() {
     setState(() => _obscureText = !_obscureText);
   }
@@ -97,27 +92,42 @@ class _LoginState extends ConsumerState<Login> {
   }
 
   Future<void> _biometricLogin(StoredCredentialProfile profile) async {
-    final biometric = ref.read(biometricAuthServiceProvider);
-    final canUse = await biometric.canCheckBiometrics();
-    if (!canUse && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Este dispositivo no admite acceso biométrico.'),
-        ),
+    if (_isLoading) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final biometric = ref.read(biometricAuthServiceProvider);
+      final availability = await biometric.checkAvailability();
+      if (!availability.isAvailable) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(availability.message ?? 'Biometría no disponible.')),
+          );
+        }
+        return;
+      }
+
+      final result = await biometric.authenticate(
+        reason: 'Confirme su identidad para entrar al sistema',
       );
-      return;
+      if (!result.success) {
+        if (mounted && result.message != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result.message!)),
+          );
+        }
+        return;
+      }
+
+      if (!mounted) return;
+      await _signInWithCredentials(
+        profile.email,
+        profile.password,
+        persistForBiometric: false,
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-
-    final authenticated = await biometric.authenticate(
-      reason: 'Confirme su identidad para entrar al sistema',
-    );
-    if (!authenticated || !mounted) return;
-
-    await _signInWithCredentials(
-      profile.email,
-      profile.password,
-      persistForBiometric: false,
-    );
   }
 
   void _switchToFullLogin() {
@@ -286,7 +296,7 @@ class _LoginState extends ConsumerState<Login> {
               obscureText: _obscureText,
               textInputAction: TextInputAction.done,
               autofillHints: const [AutofillHints.password],
-              onFieldSubmitted: (_) => _submitLogin(),
+              onFieldSubmitted: (_) => DismissKeyboard.unfocus(context),
               suffixIcon: IconButton(
                 icon: Icon(
                   _obscureText
@@ -324,7 +334,9 @@ class _LoginState extends ConsumerState<Login> {
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
+              child: Focus(
+                skipTraversal: true,
+                child: FilledButton(
                 onPressed: _isLoading ? null : fnLogin,
                 style: FilledButton.styleFrom(
                   backgroundColor: LoginColors.deepEmerald,
@@ -360,6 +372,7 @@ class _LoginState extends ConsumerState<Login> {
                           const Icon(Icons.login, size: 22),
                         ],
                       ),
+              ),
               ),
             ),
           ],

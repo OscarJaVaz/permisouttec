@@ -1,14 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:permisouttec/infraestructure/datasources/permisos_datasource.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_record.dart';
+import 'package:permisouttec/providers/permisos_provider.dart';
 
-class VisualizarPermisos extends StatelessWidget {
+class VisualizarPermisos extends ConsumerWidget {
   const VisualizarPermisos({super.key});
 
-  static final _permisosDs = PermisosDatasource();
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stream = ref.watch(permisosDatasourceProvider).streamAll();
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80.0),
@@ -19,30 +20,25 @@ class VisualizarPermisos extends StatelessWidget {
           ),
         ),
       ),
-      body: StreamBuilder(
-        stream: _permisosDs.streamAll(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      body: StreamBuilder<List<RtdbRecord>>(
+        stream: stream,
+        builder: (context, AsyncSnapshot<List<RtdbRecord>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
             return const Center(child: Text('Error al cargar los datos'));
           }
-          if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
+          final records = snapshot.data ?? [];
+          if (records.isEmpty) {
             return const Center(child: Text('Sin registros'));
           }
-          final docs = snapshot.data!.docs;
           return ListView.builder(
-            itemCount: docs.length,
+            itemCount: records.length,
             itemBuilder: (context, index) {
-              final DocumentSnapshot doc = docs[index];
-              final String estado = doc['estado'];
-              final Map<String, dynamic>? data =
-                  doc.data() as Map<String, dynamic>?;
-              final bool archivado = data != null &&
-                  data.containsKey('archivado')
-                  ? data['archivado']
-                  : false;
+              final record = records[index];
+              final String estado = record.string('estado') ?? '';
+              final bool archivado = record.boolValue('archivado');
 
               if (!archivado) {
                 return Padding(
@@ -52,7 +48,7 @@ class VisualizarPermisos extends StatelessWidget {
                   ),
                   child: ExpansionTile(
                     title: ListTile(
-                      title: Text('Tipo: ${doc['tipo']}'),
+                      title: Text('Tipo: ${record.string('tipo')}'),
                       subtitle: Text('Estado: $estado'),
                     ),
                     children: [
@@ -61,7 +57,12 @@ class VisualizarPermisos extends StatelessWidget {
                         children: [
                           ElevatedButton.icon(
                             onPressed: () {
-                              _updatePermissionStatus(doc.id, estado, true);
+                              _updatePermissionStatus(
+                                ref,
+                                record.id,
+                                estado,
+                                true,
+                              );
                             },
                             icon: const Icon(Icons.archive),
                             label: const Text('Archivar'),
@@ -70,7 +71,8 @@ class VisualizarPermisos extends StatelessWidget {
                             ElevatedButton.icon(
                               onPressed: () {
                                 _updatePermissionStatus(
-                                  doc.id,
+                                  ref,
+                                  record.id,
                                   'aprobado',
                                   false,
                                 );
@@ -88,7 +90,8 @@ class VisualizarPermisos extends StatelessWidget {
                             ElevatedButton.icon(
                               onPressed: () {
                                 _updatePermissionStatus(
-                                  doc.id,
+                                  ref,
+                                  record.id,
                                   'rechazado',
                                   false,
                                 );
@@ -116,17 +119,19 @@ class VisualizarPermisos extends StatelessWidget {
   }
 
   void _updatePermissionStatus(
+    WidgetRef ref,
     String permissionId,
     String newStatus,
     bool archive,
   ) async {
+    final ds = ref.read(permisosDatasourceProvider);
     if (archive) {
-      await _permisosDs.updatePermiso(permissionId, {
+      await ds.updatePermiso(permissionId, {
         'estado': newStatus,
         'archivado': true,
       });
     } else {
-      await _permisosDs.updatePermiso(permissionId, {'estado': newStatus});
+      await ds.updatePermiso(permissionId, {'estado': newStatus});
     }
   }
 }

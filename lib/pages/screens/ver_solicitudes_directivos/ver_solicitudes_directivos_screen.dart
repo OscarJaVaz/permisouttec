@@ -1,21 +1,25 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_record.dart';
+import 'package:permisouttec/providers/permisos_provider.dart';
 
-class VerSolicitudesDirectivosPage extends StatefulWidget {
+class VerSolicitudesDirectivosPage extends ConsumerStatefulWidget {
   const VerSolicitudesDirectivosPage({super.key});
 
   @override
-  State<VerSolicitudesDirectivosPage> createState() =>
+  ConsumerState<VerSolicitudesDirectivosPage> createState() =>
       _VerSolicitudesDirectivosPageState();
 }
 
 class _VerSolicitudesDirectivosPageState
-    extends State<VerSolicitudesDirectivosPage> {
+    extends ConsumerState<VerSolicitudesDirectivosPage> {
   Future<void> _aprobarSolicitud(String userId) async {
     try {
-      await FirebaseFirestore.instance.collection('usuarios').doc(userId).update(
-        {'solicitud_directivo': false, 'directivo': true},
-      );
+      await ref.read(usuariosDatasourceProvider).updateUsuario(userId, {
+        'solicitud_directivo': false,
+        'aprobado_directivo': true,
+        'puesto': 'Directivo',
+      });
       if (!mounted) return;
       showDialog(
         context: context,
@@ -41,12 +45,11 @@ class _VerSolicitudesDirectivosPageState
 
   Future<void> _rechazarSolicitud(String userId) async {
     try {
-      await FirebaseFirestore.instance.collection('usuarios').doc(userId).update(
-        {
-          'solicitud_directivo': false,
-          'puesto': 'Profesor',
-        },
-      );
+      await ref.read(usuariosDatasourceProvider).updateUsuario(userId, {
+        'solicitud_directivo': false,
+        'aprobado_directivo': false,
+        'puesto': 'Profesor',
+      });
 
       if (!mounted) return;
       showDialog(
@@ -73,6 +76,8 @@ class _VerSolicitudesDirectivosPageState
 
   @override
   Widget build(BuildContext context) {
+    final stream = ref.watch(usuariosDatasourceProvider).streamSolicitudesDirectivo();
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
@@ -84,13 +89,9 @@ class _VerSolicitudesDirectivosPageState
           centerTitle: false,
         ),
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('usuarios')
-            .where('solicitud_directivo', isEqualTo: true)
-            .snapshots(),
-        builder:
-            (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      body: StreamBuilder<List<RtdbRecord>>(
+        stream: stream,
+        builder: (BuildContext context, AsyncSnapshot<List<RtdbRecord>> snapshot) {
           if (snapshot.hasError) {
             return Center(
               child: Text('Error: ${snapshot.error}'),
@@ -103,19 +104,18 @@ class _VerSolicitudesDirectivosPageState
             );
           }
 
-          if (snapshot.data!.docs.isEmpty) {
+          final records = snapshot.data ?? [];
+          if (records.isEmpty) {
             return const Center(
               child: Text('No hay solicitudes de directivos.'),
             );
           }
 
           return ListView(
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              final Map<String, dynamic> data =
-                  document.data() as Map<String, dynamic>;
-              final String userId = document.id;
-              final String email = data['email'] ?? '';
-              final String puesto = data['puesto'] ?? '';
+            children: records.map((RtdbRecord record) {
+              final String userId = record.id;
+              final String email = record.string('email') ?? '';
+              final String puesto = record.string('puesto') ?? '';
               return ListTile(
                 title: Text(email),
                 subtitle: Text('Puesto: $puesto'),

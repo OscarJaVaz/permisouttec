@@ -1,9 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/config/router/app_routes.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_date_helper.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_record.dart';
 import 'package:permisouttec/providers/auth_provider.dart';
 import 'package:permisouttec/providers/permisos_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -27,19 +28,17 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
   }
 
   Future<void> _showAbsenceDetails(DateTime selectedDay) async {
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('permisos')
-        .where('usuarioId', isEqualTo: _currentUser.uid)
-        .where('fecha', isEqualTo: selectedDay)
-        .get();
+    final records = await ref
+        .read(permisosDatasourceProvider)
+        .findByUsuarioAndFecha(_currentUser.uid, selectedDay);
 
-    if (querySnapshot.docs.isEmpty) {
+    if (records.isEmpty) {
       return;
     }
 
-    final doc = querySnapshot.docs[0];
-    final String tipo = doc['tipo'];
-    final String estado = doc['estado'];
+    final record = records.first;
+    final String tipo = record.string('tipo') ?? '';
+    final String estado = record.string('estado') ?? '';
 
     if (!mounted) return;
     showDialog(
@@ -73,22 +72,24 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
 
   @override
   Widget build(BuildContext context) {
-    final permisosDs = ref.watch(permisosDatasourceProvider);
+    final stream =
+        ref.watch(permisosDatasourceProvider).streamByUsuario(_currentUser.uid);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inicio - Profesor'),
       ),
-      body: StreamBuilder(
-        stream: permisosDs.streamByUsuario(_currentUser.uid),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      body: StreamBuilder<List<RtdbRecord>>(
+        stream: stream,
+        builder: (context, AsyncSnapshot<List<RtdbRecord>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
             return const Center(child: Text('Error al cargar los datos'));
           }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          final records = snapshot.data ?? [];
+          if (records.isEmpty) {
             return const Center(child: Text('Sin registros'));
           }
 
@@ -107,13 +108,9 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
                 },
                 eventLoader: (day) {
                   final selectedEvents = <Color>[];
-                  for (final doc in snapshot.data!.docs) {
-                    final Timestamp fechaTimestamp = doc['fecha'];
-                    final DateTime fecha = fechaTimestamp.toDate();
-                    if (fecha.day == day.day &&
-                        fecha.month == day.month &&
-                        fecha.year == day.year) {
-                      final String estado = doc['estado'];
+                  for (final record in records) {
+                    if (RtdbDateHelper.isSameDay(record.data['fecha'], day)) {
+                      final String estado = record.string('estado') ?? '';
                       if (estado == 'pendiente') {
                         selectedEvents.add(Colors.orange);
                       } else if (estado == 'aprobado') {
@@ -128,21 +125,16 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
+                  itemCount: records.length,
                   itemBuilder: (context, index) {
-                    final DocumentSnapshot doc = snapshot.data!.docs[index];
-                    final String estado = doc['estado'];
-                    final String tipo = doc['tipo'];
-                    final Timestamp fechaTimestamp = doc['fecha'];
-                    final DateTime fecha = fechaTimestamp.toDate();
-                    final Map<String, dynamic>? data =
-                        doc.data() as Map<String, dynamic>?;
-                    final bool archivado = data != null &&
-                        data.containsKey('archivado')
-                        ? data['archivado']
-                        : false;
+                    final record = records[index];
+                    final String estado = record.string('estado') ?? '';
+                    final String tipo = record.string('tipo') ?? '';
+                    final fecha = RtdbDateHelper.fromValue(record.data['fecha']);
+                    final bool archivado = record.boolValue('archivado');
 
-                    if (!archivado &&
+                    if (fecha != null &&
+                        !archivado &&
                         fecha.day == _selectedDay.day &&
                         fecha.month == _selectedDay.month &&
                         fecha.year == _selectedDay.year) {

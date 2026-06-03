@@ -1,10 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:permisouttec/domain/entities/usuario_entity.dart';
+import 'package:permisouttec/infraestructure/datasources/usuarios_datasource.dart';
+import 'package:permisouttec/services/rtdb_auth_sync.dart';
 
 class AuthDatasource {
+  AuthDatasource(this._usuariosDatasource);
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final UsuariosDatasource _usuariosDatasource;
 
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
@@ -20,13 +23,13 @@ class AuthDatasource {
     );
     final user = credential.user;
     if (user == null) return null;
+    await syncAuthTokenForRtdb();
     return fetchUsuario(user.uid);
   }
 
   Future<UsuarioEntity?> fetchUsuario(String uid) async {
-    final doc = await _firestore.collection('usuarios').doc(uid).get();
-    if (!doc.exists) return null;
-    final data = doc.data()!;
+    final data = await _usuariosDatasource.getUsuarioData(uid);
+    if (data == null) return null;
     return UsuarioEntity(
       uid: uid,
       email: data['email'] as String?,

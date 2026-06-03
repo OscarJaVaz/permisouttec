@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_date_helper.dart';
 import 'package:permisouttec/providers/permisos_provider.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 
@@ -34,21 +34,27 @@ class _NuevoPermisoState extends ConsumerState<NuevoPermiso> {
   Future<void> _solicitarPermiso() async {
     try {
       final permisosDs = ref.read(permisosDatasourceProvider);
+      final usuariosDs = ref.read(usuariosDatasourceProvider);
       final userId = FirebaseAuth.instance.currentUser!.uid;
-      final userInfo = await FirebaseFirestore.instance
-          .collection('usuarios')
-          .doc(userId)
-          .get();
-      final String? rol = userInfo['puesto'];
+      final userInfo = await usuariosDs.getUsuarioData(userId);
+      final String? rol = userInfo?['puesto'] as String?;
+
+      if (_selectedDate == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Seleccione una fecha')),
+        );
+        return;
+      }
 
       if (rol == 'Profesor') {
-        final permisos = await permisosDs.countAusenciasAprobadas(userId);
+        final count = await permisosDs.countAusenciasAprobadas(userId);
 
-        if (permisos.docs.length < 7) {
+        if (count < 7) {
           await permisosDs.addPermiso({
             'usuarioId': userId,
             'tipo': _tipoPermisoController.text,
-            'fecha': _selectedDate,
+            'fecha': RtdbDateHelper.toDayMillis(_selectedDate!),
             'estado': 'pendiente',
             'contador': 1,
           });
