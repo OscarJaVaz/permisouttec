@@ -47,6 +47,8 @@ dependencies:
   go_router: ^17.3.0
   flutter_riverpod: ^2.6.1
   google_fonts: ^6.2.1
+  flutter_secure_storage: ^10.3.1
+  local_auth: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +76,7 @@ flutter:
   assets:
     - assets/images/utt_logo.png
     - assets/stitch/login/screenshot.png
+    - assets/stitch/login/screenshot_native.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

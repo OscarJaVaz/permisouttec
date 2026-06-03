@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
 
 class LoginTextField extends StatelessWidget {
@@ -34,13 +35,16 @@ class LoginTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label.toUpperCase(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.6,
-            color: LoginColors.onSurfaceVariant,
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            label.toUpperCase(),
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+              color: LoginColors.onSurfaceVariant,
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -52,32 +56,35 @@ class LoginTextField extends StatelessWidget {
           textInputAction: textInputAction,
           autofillHints: autofillHints,
           onSubmitted: onFieldSubmitted,
-          style: const TextStyle(
+          style: GoogleFonts.inter(
             fontSize: 16,
             color: LoginColors.onSurface,
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: LoginColors.outline),
+            hintStyle: GoogleFonts.inter(
+              fontSize: 16,
+              color: LoginColors.outline.withValues(alpha: 0.7),
+            ),
             prefixIcon: Icon(prefixIcon, color: LoginColors.outline, size: 22),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: LoginColors.surfaceLowest,
+            fillColor: LoginColors.paperWhite,
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 14,
+              horizontal: 16,
+              vertical: 18,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: LoginColors.outlineVariant),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: LoginColors.outlineVariant),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: LoginColors.secondary, width: 2),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: LoginColors.deepEmerald, width: 2),
             ),
           ),
         ),
