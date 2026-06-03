@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "institutional-gold": "#C5A358",
+                    "surface-container": "#edeeef",
+                    "on-tertiary-fixed-variant": "#703532",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#f8f9fa",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#251a00",
+                    "tertiary-fixed": "#ffdad7",
+                    "secondary-container": "#fed887",
+                    "surface-container-low": "#f3f4f5",
+                    "surface-container-highest": "#e1e3e4",
+                    "inverse-surface": "#2e3132",
+                    "tertiary": "#4c1a18",
+                    "surface-tint": "#2b694f",
+                    "error-container": "#ffdad6",
+                    "on-surface-variant": "#404943",
+                    "on-primary-container": "#7ab99a",
+                    "surface-dim": "#d9dadb",
+                    "tertiary-container": "#682f2c",
+                    "surface-variant": "#e1e3e4",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "secondary": "#765a16",
+                    "on-secondary-fixed-variant": "#5b4300",
+                    "tertiary-fixed-dim": "#ffb3ae",
+                    "academic-slate": "#333E48",
+                    "on-primary-fixed-variant": "#0c5138",
+                    "primary-container": "#004a32",
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-container-high": "#e7e8e9",
+                    "inverse-primary": "#94d4b4",
+                    "background": "#f8f9fa",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#bfc9c1",
+                    "secondary-fixed-dim": "#e6c274",
+                    "surface": "#f8f9fa",
+                    "secondary-fixed": "#ffdf9d",
+                    "on-primary-fixed": "#002114",
+                    "on-background": "#191c1d",
+                    "deep-emerald": "#004A32",
+                    "on-surface": "#191c1d",
+                    "paper-white": "#FFFFFF",
+                    "outline": "#707973",
+                    "on-secondary-container": "#785d18",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#94d4b4",
+                    "surface-subtle": "#EDF0F2",
+                    "primary-fixed": "#b0f0cf",
+                    "on-tertiary-container": "#e79792",
+                    "primary": "#003120",
+                    "on-tertiary-fixed": "#390b0a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "margin-desktop": "48px",
+                    "gutter": "24px",
+                    "margin-mobile": "20px",
+                    "section-gap": "64px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Montserrat"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Montserrat"],
+                    "headline-lg-mobile": ["Montserrat"],
+                    "title-md": ["Montserrat"],
+                    "label-sm": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
+        }
+        .input-focus-ring:focus-within {
+            border-color: #004A32;
+            box-shadow: 0 0 0 1px #004A32;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Top App Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-margin-mobile h-16 bg-paper-white shadow-sm">
+<button aria-label="Volver" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors duration-200">
+<span class="material-symbols-outlined text-deep-emerald" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="font-display-lg text-title-md font-bold text-deep-emerald">
+            UTT Permisos
+        </div>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<main class="pt-24 pb-12 px-margin-mobile max-w-md mx-auto min-h-screen flex flex-col">
+<!-- Header Section -->
+<section class="mb-10">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-deep-emerald mb-2">Comienza tu registro</h1>
+<p class="font-body-md text-on-surface-variant">Crea tu cuenta institucional para acceder al portal</p>
+</section>
+<!-- Registration Form -->
+<form class="flex-grow space-y-6">
+<!-- Email Field -->
+<div class="space-y-1.5">
+<label class="font-label-sm text-label-sm text-outline ml-1" for="email">Correo electrónico</label>
+<div class="relative group input-focus-ring border border-outline-variant rounded-lg bg-paper-white transition-all duration-200">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline group-focus-within:text-deep-emerald" data-icon="mail">mail</span>
+<input class="w-full pl-12 pr-4 py-4 bg-transparent border-none focus:ring-0 text-body-md rounded-lg" id="email" name="email" placeholder="ejemplo@utt.edu.mx" required="" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-1.5">
+<label class="font-label-sm text-label-sm text-outline ml-1" for="password">Contraseña</label>
+<div class="relative group input-focus-ring border border-outline-variant rounded-lg bg-paper-white transition-all duration-200">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline group-focus-within:text-deep-emerald" data-icon="lock">lock</span>
+<input class="w-full pl-12 pr-12 py-4 bg-transparent border-none focus:ring-0 text-body-md rounded-lg" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline" data-icon="visibility" type="button">visibility</button>
+</div>
+</div>
+<!-- Position Field (Picker Style) -->
+<div class="space-y-1.5">
+<label class="font-label-sm text-label-sm text-outline ml-1" for="puesto">Puesto</label>
+<div class="relative group input-focus-ring border border-outline-variant rounded-lg bg-paper-white transition-all duration-200">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline group-focus-within:text-deep-emerald" data-icon="badge">badge</span>
+<select class="w-full pl-12 pr-10 py-4 bg-transparent border-none focus:ring-0 text-body-md rounded-lg appearance-none cursor-pointer" id="puesto" name="puesto">
+<option disabled="" selected="" value="">Selecciona tu puesto</option>
+<option value="estudiante">Estudiante</option>
+<option value="docente">Docente</option>
+<option value="administrativo">Administrativo</option>
+<option value="directivo">Directivo</option>
+</select>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Privacy Policy Checkbox -->
+<div class="flex items-start gap-3 pt-2">
+<div class="relative flex items-center">
+<input class="w-6 h-6 rounded border-outline-variant text-deep-emerald focus:ring-deep-emerald focus:ring-offset-2 cursor-pointer" id="privacy" name="privacy" type="checkbox"/>
+</div>
+<label class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed cursor-pointer" for="privacy">
+                    Acepto el <span class="text-deep-emerald font-semibold underline decoration-2 underline-offset-4">Aviso de Privacidad</span> y los términos de uso institucional.
+                </label>
+</div>
+<!-- Primary Action -->
+<div class="pt-6">
+<button class="w-full bg-deep-emerald text-paper-white py-5 rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all duration-150 hover:brightness-110" type="submit">
+                    Registrarse
+                </button>
+</div>
+</form>
+<!-- Footer Link -->
+<footer class="mt-12 text-center pb-8">
+<a class="inline-flex items-center gap-1 font-body-md text-on-surface-variant hover:text-deep-emerald transition-colors" href="#">
+                ¿Ya tienes una cuenta? <span class="text-deep-emerald font-bold">Iniciar sesión</span>
+</a>
+</footer>
+</main>
+<!-- Decorative Bottom Element (App feel) -->
+<div class="fixed bottom-1 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-surface-dim rounded-full pointer-events-none opacity-50"></div>
+<script>
+        // Simple password toggle interaction
+        const passToggle = document.querySelector('[data-icon="visibility"]');
+        const passInput = document.querySelector('#password');
+        
+        passToggle.addEventListener('click', () => {
+            const isPassword = passInput.type === 'password';
+            passInput.type = isPassword ? 'text' : 'password';
+            passToggle.textContent = isPassword ? 'visibility_off' : 'visibility';
+        });
+
+        // Registration form submission micro-interaction
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-pulse">Procesando...</span>';
+            
+            setTimeout(() => {
+                btn.innerHTML = '¡Cuenta creada!';
+                btn.classList.replace('bg-deep-emerald', 'bg-institutional-gold');
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    btn.classList.replace('bg-institutional-gold', 'bg-deep-emerald');
+                }, 2000);
+            }, 1500);
+        });
+    </script>
+</body></html>
