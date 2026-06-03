@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/config/router/app_routes.dart';
+import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 
 class RegistroPage extends StatefulWidget {
   const RegistroPage({super.key});
@@ -70,7 +71,8 @@ class _RegistroPageState extends State<RegistroPage> {
       appBar: AppBar(
         title: const Text('Registro'),
       ),
-      body: Padding(
+      body: DismissKeyboard(
+        child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,6 +114,7 @@ class _RegistroPageState extends State<RegistroPage> {
               child: const Text('Registrarse'),
             ),
           ],
+        ),
         ),
       ),
     );

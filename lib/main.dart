@@ -17,6 +17,7 @@ class MyApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: Enviroment.appTitle,
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,

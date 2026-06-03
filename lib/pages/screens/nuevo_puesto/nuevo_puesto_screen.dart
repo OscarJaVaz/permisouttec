@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
+import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 
 final TextEditingController _codigoController = TextEditingController();
 final TextEditingController _nombreController = TextEditingController();
@@ -101,7 +102,8 @@ class _NuevoPuestoState extends ConsumerState<NuevoPuesto> {
           ),
         ),
       ),
-      body: Padding(
+      body: DismissKeyboard(
+        child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -139,6 +141,7 @@ class _NuevoPuestoState extends ConsumerState<NuevoPuesto> {
               ],
             ),
           ],
+        ),
         ),
       ),
     );

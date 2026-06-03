@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PIUTTEC - Inicio de Sesión</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f0f1f2",
+                        "primary": "#15451d",
+                        "secondary-fixed": "#d1e4ff",
+                        "surface-tint": "#39693c",
+                        "secondary-container": "#95c5fd",
+                        "heritage-green": "#2E5D32",
+                        "tertiary-container": "#005a7a",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#004c68",
+                        "scholar-blue": "#336699",
+                        "surface": "#f8f9fa",
+                        "surface-container-high": "#e7e8e9",
+                        "secondary": "#2d6194",
+                        "on-surface-variant": "#414940",
+                        "surface-dim": "#d9dadb",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e1e3e4",
+                        "on-primary-fixed-variant": "#215027",
+                        "secondary-fixed-dim": "#9ecaff",
+                        "background": "#f8f9fa",
+                        "on-primary": "#ffffff",
+                        "outline": "#72796f",
+                        "inverse-surface": "#2e3132",
+                        "outline-variant": "#c1c9bd",
+                        "primary-fixed": "#baf0b8",
+                        "surface-bright": "#f8f9fa",
+                        "on-primary-container": "#a0d49e",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#191c1d",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#001e2c",
+                        "surface-container": "#edeeef",
+                        "on-secondary-fixed-variant": "#09497a",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#78d1ff",
+                        "tertiary-fixed": "#c3e8ff",
+                        "primary-container": "#2e5d32",
+                        "cream-canvas": "#FFF7E1",
+                        "primary-fixed-dim": "#9fd49d",
+                        "on-background": "#191c1d",
+                        "on-primary-fixed": "#002106",
+                        "on-tertiary-container": "#7cd2ff",
+                        "surface-container-highest": "#e1e3e4",
+                        "innovation-cyan": "#0099CC",
+                        "on-secondary-fixed": "#001d36",
+                        "tertiary": "#004159",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#185183",
+                        "inverse-primary": "#9fd49d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "unit": "8px",
+                        "container-max": "1280px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Source Serif 4"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Source Serif 4"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-caps": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Source Serif 4"],
+                        "title-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "title-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Hanken Grotesk', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e1e3e4;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-margin-mobile">
+<!-- Main Content Canvas -->
+<main class="w-full max-w-[1280px] flex flex-col items-center justify-center flex-grow">
+<div class="w-full max-w-md">
+<!-- Branding Section -->
+<div class="flex flex-col items-center mb-8 space-y-4">
+<div class="w-32 h-32 md:w-36 md:h-36 rounded-full overflow-hidden mb-2 bg-white shadow-sm flex items-center justify-center">
+<img alt="UTT Logo" class="w-5/6 h-5/6 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLtc23ZhlEgRjqI571kaJDGlPPvRL6T17u3OhjddnsSzsSPKbBKzKrOK7iBkrtDZ_V_xiiYTn9R06fyDkvj9rZlQ_v6JMv-xA8BqWBI15gF_xsb21-pFepRG2QG-4OTezrXqi476iAq4mY2voFEd9DMzyZolw_WTWBGyB6DlgpGhC2jhUrqRZvK3qOpa2nSSXnkCERzBfKWQ0pAWCP1tC84GAVaQXoFZPYi3_fopj1eZuLn3DYIpzpCbzWw"/>
+</div>
+<div class="text-center">
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary tracking-tight">PIUTTEC</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant uppercase tracking-widest font-semibold">Plataforma de Información</p>
+</div>
+</div>
+<!-- Login Form Card -->
+<div class="glass-card rounded-xl p-8 md:p-10 shadow-sm">
+<div class="mb-6 text-center">
+<h2 class="font-title-md text-title-md text-on-surface">Entrar al sistema</h2>
+</div>
+<form class="space-y-6" onsubmit="return false;">
+<!-- User/Matricula Field -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block" for="username">Usuario o Matrícula</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-secondary transition-colors">person</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-lg text-body-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all placeholder:text-outline-variant" id="username" name="username" placeholder="Matrícula" type="text"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block" for="password">Contraseña</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-secondary transition-colors">lock</span>
+<input class="w-full pl-10 pr-12 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-lg text-body-lg focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all placeholder:text-outline-variant" id="password" name="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-secondary transition-colors" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Actions -->
+<div class="pt-2 space-y-4">
+<button class="w-full bg-primary text-on-primary py-4 rounded-lg font-title-md text-body-lg hover:bg-primary-container transition-all duration-300 shadow-md flex items-center justify-center gap-2 group" type="submit">
+                        Iniciar Sesion
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">login</span>
+</button>
+<div class="text-center">
+<a class="font-body-sm text-body-sm text-secondary hover:text-scholar-blue font-semibold underline-offset-4 hover:underline transition-all" href="#">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+</div>
+</div>
+</form>
+</div>
+<!-- Supporting Links -->
+<div class="mt-8 flex flex-col items-center space-y-4">
+<div class="flex gap-6">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">Aviso Integral</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#">Aviso de Privacidad</a>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center px-4">
+                Acceda con sus credenciales institucionales para ingresar a la plataforma.
+            </p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full max-w-[1280px] py-8 mt-auto flex flex-col items-center space-y-2 border-t border-outline-variant/30">
+<p class="font-label-caps text-label-caps text-on-surface-variant text-center">
+        Universidad Tecnológica de Tecámac
+    </p>
+<p class="font-body-sm text-body-sm text-outline opacity-70 text-center">
+        Plataforma de Información Universitaria © 2024
+    </p>
+</footer>
+<!-- Interactive Layer -->
+<script>
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('focus', () => {
+            input.parentElement.parentElement.classList.add('scale-[1.01]');
+        });
+        input.addEventListener('blur', () => {
+            input.parentElement.parentElement.classList.remove('scale-[1.01]');
+        });
+    });
+
+    const loginBtn = document.querySelector('button[type="submit"]');
+    loginBtn.addEventListener('mousedown', () => loginBtn.classList.add('scale-95'));
+    loginBtn.addEventListener('mouseup', () => loginBtn.classList.remove('scale-95'));
+    loginBtn.addEventListener('mouseleave', () => loginBtn.classList.remove('scale-95'));
+</script>
+</body></html>

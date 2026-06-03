@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/providers/permisos_provider.dart';
+import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 
 class NuevoPermiso extends ConsumerStatefulWidget {
   const NuevoPermiso({super.key});
@@ -91,7 +92,8 @@ class _NuevoPermisoState extends ConsumerState<NuevoPermiso> {
       appBar: AppBar(
         title: const Text('Nuevo Permiso de Ausencia'),
       ),
-      body: Padding(
+      body: DismissKeyboard(
+        child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -129,6 +131,7 @@ class _NuevoPermisoState extends ConsumerState<NuevoPermiso> {
               child: const Text('Solicitar Permiso de Ausencia'),
             ),
           ],
+        ),
         ),
       ),
     );

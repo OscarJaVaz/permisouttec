@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
+import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 
 class NuevoProfesor extends ConsumerStatefulWidget {
   const NuevoProfesor({super.key});
@@ -167,8 +168,9 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
+      body: DismissKeyboard(
+        child: SingleChildScrollView(
+          child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -286,6 +288,7 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
