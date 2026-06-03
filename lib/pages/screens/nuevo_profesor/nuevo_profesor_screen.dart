@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
+import 'package:permisouttec/widgets/form_text_field.dart';
 
 class NuevoProfesor extends ConsumerStatefulWidget {
   const NuevoProfesor({super.key});
@@ -24,6 +25,10 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
   String? valorExistenteDelCampoDivision;
   String? valorExistenteDelCampoPuesto;
   bool _seleccionValida = false;
+  final FocusNode _numeroFocusNode = FocusNode();
+  final FocusNode _nombreFocusNode = FocusNode();
+  final FocusNode _horasFocusNode = FocusNode();
+  final FocusNode _diasFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -151,6 +156,10 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
 
   @override
   void dispose() {
+    _numeroFocusNode.dispose();
+    _nombreFocusNode.dispose();
+    _horasFocusNode.dispose();
+    _diasFocusNode.dispose();
     ref.read(nuevoProfesorDocIdProvider.notifier).state = null;
     super.dispose();
   }
@@ -172,28 +181,43 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
         child: SingleChildScrollView(
           child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
+          child: FocusTraversalGroup(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextField(
+              FormTextField(
                 controller: _numeroController,
-                decoration: const InputDecoration(
-                  labelText: 'Numero de empleado',
-                ),
+                focusNode: _numeroFocusNode,
+                labelText: 'Numero de empleado',
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) =>
+                    submitFormField(context, nextFocus: _nombreFocusNode),
               ),
-              TextField(
+              FormTextField(
                 controller: _nombreController,
-                decoration: const InputDecoration(labelText: 'Nombre'),
+                focusNode: _nombreFocusNode,
+                labelText: 'Nombre',
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) =>
+                    submitFormField(context, nextFocus: _horasFocusNode),
               ),
-              TextField(
+              FormTextField(
                 controller: _horasController,
-                decoration: const InputDecoration(labelText: 'Horas por semana'),
+                focusNode: _horasFocusNode,
+                labelText: 'Horas por semana',
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) =>
+                    submitFormField(context, nextFocus: _diasFocusNode),
               ),
-              TextField(
+              FormTextField(
                 controller: _diasController,
-                decoration: const InputDecoration(
-                  labelText: 'Dias de descanso permitidos por cuatrimestre',
-                ),
+                focusNode: _diasFocusNode,
+                labelText: 'Dias de descanso permitidos por cuatrimestre',
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => submitFormField(context),
               ),
               Padding(
                 padding: const EdgeInsets.all(15.0),
@@ -288,6 +312,7 @@ class _NuevoProfesorState extends ConsumerState<NuevoProfesor> {
               ),
             ],
           ),
+        ),
         ),
         ),
       ),

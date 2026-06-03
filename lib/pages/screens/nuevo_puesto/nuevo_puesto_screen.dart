@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
+import 'package:permisouttec/widgets/form_text_field.dart';
 
 final TextEditingController _codigoController = TextEditingController();
 final TextEditingController _nombreController = TextEditingController();
@@ -18,6 +19,8 @@ class NuevoPuesto extends ConsumerStatefulWidget {
 class _NuevoPuestoState extends ConsumerState<NuevoPuesto> {
   late final String _idDoc;
   final String _appBarTitle = 'Nuevo Puesto';
+  final FocusNode _codigoFocusNode = FocusNode();
+  final FocusNode _nombreFocusNode = FocusNode();
 
   Future<void> _guardarDatos() async {
     try {
@@ -85,6 +88,8 @@ class _NuevoPuestoState extends ConsumerState<NuevoPuesto> {
 
   @override
   void dispose() {
+    _codigoFocusNode.dispose();
+    _nombreFocusNode.dispose();
     ref.read(nuevoPuestoDocIdProvider.notifier).state = null;
     super.dispose();
   }
@@ -105,16 +110,24 @@ class _NuevoPuestoState extends ConsumerState<NuevoPuesto> {
       body: DismissKeyboard(
         child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: FocusTraversalGroup(
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
+            FormTextField(
               controller: _codigoController,
-              decoration: const InputDecoration(labelText: 'Código'),
+              focusNode: _codigoFocusNode,
+              labelText: 'Código',
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) =>
+                  submitFormField(context, nextFocus: _nombreFocusNode),
             ),
-            TextField(
+            FormTextField(
               controller: _nombreController,
-              decoration: const InputDecoration(labelText: 'Nombre del puesto'),
+              focusNode: _nombreFocusNode,
+              labelText: 'Nombre del puesto',
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => submitFormField(context),
             ),
             const SizedBox(height: 20),
             Row(
@@ -141,6 +154,7 @@ class _NuevoPuestoState extends ConsumerState<NuevoPuesto> {
               ],
             ),
           ],
+        ),
         ),
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/providers/navigation_params_provider.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
+import 'package:permisouttec/widgets/form_text_field.dart';
 
 final TextEditingController _codigoDivisionController = TextEditingController();
 final TextEditingController _nombreDivisionController = TextEditingController();
@@ -17,6 +18,8 @@ class NuevaDivision extends ConsumerStatefulWidget {
 
 class _NuevaDivisionState extends ConsumerState<NuevaDivision> {
   late final String _idDoc;
+  final FocusNode _codigoFocusNode = FocusNode();
+  final FocusNode _nombreFocusNode = FocusNode();
   Future<void> _guardarDatos() async {
     try {
       if (_idDoc.isNotEmpty) {
@@ -83,6 +86,8 @@ class _NuevaDivisionState extends ConsumerState<NuevaDivision> {
 
   @override
   void dispose() {
+    _codigoFocusNode.dispose();
+    _nombreFocusNode.dispose();
     ref.read(nuevaDivisionDocIdProvider.notifier).state = null;
     super.dispose();
   }
@@ -103,16 +108,24 @@ class _NuevaDivisionState extends ConsumerState<NuevaDivision> {
       body: DismissKeyboard(
         child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: FocusTraversalGroup(
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
+            FormTextField(
               controller: _codigoDivisionController,
-              decoration: const InputDecoration(labelText: 'Código'),
+              focusNode: _codigoFocusNode,
+              labelText: 'Código',
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) =>
+                  submitFormField(context, nextFocus: _nombreFocusNode),
             ),
-            TextField(
+            FormTextField(
               controller: _nombreDivisionController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
+              focusNode: _nombreFocusNode,
+              labelText: 'Nombre',
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => submitFormField(context),
             ),
             const SizedBox(height: 20),
             Row(
@@ -139,6 +152,7 @@ class _NuevaDivisionState extends ConsumerState<NuevaDivision> {
               ],
             ),
           ],
+        ),
         ),
         ),
       ),

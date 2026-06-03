@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/config/router/app_routes.dart';
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
+import 'package:permisouttec/widgets/form_text_field.dart';
 
 class RegistroPage extends StatefulWidget {
   const RegistroPage({super.key});
@@ -16,8 +17,19 @@ class RegistroPage extends StatefulWidget {
 class _RegistroPageState extends State<RegistroPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
   String? _selectedPuesto;
   final List<String> _puestos = ['Directivo', 'Profesor'];
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   void _register() async {
     try {
@@ -74,7 +86,8 @@ class _RegistroPageState extends State<RegistroPage> {
       body: DismissKeyboard(
         child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: FocusTraversalGroup(
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
@@ -82,15 +95,23 @@ class _RegistroPageState extends State<RegistroPage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            TextField(
+            FormTextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Correo electrónico'),
+              focusNode: _emailFocusNode,
+              labelText: 'Correo electrónico',
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              onFieldSubmitted: (_) =>
+                  submitFormField(context, nextFocus: _passwordFocusNode),
             ),
             const SizedBox(height: 10),
-            TextField(
+            FormTextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
+              focusNode: _passwordFocusNode,
+              labelText: 'Contraseña',
               obscureText: true,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => submitFormField(context),
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField(
@@ -114,6 +135,7 @@ class _RegistroPageState extends State<RegistroPage> {
               child: const Text('Registrarse'),
             ),
           ],
+        ),
         ),
         ),
       ),
