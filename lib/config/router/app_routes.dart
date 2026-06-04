@@ -1,5 +1,6 @@
 abstract final class AppRoutes {
   static const login = '/login';
+  static const autenticandoBiometrico = '/login/autenticando';
   static const registro = '/registro';
   static const home = '/home';
   static const homeProfesor = '/home-profesor';

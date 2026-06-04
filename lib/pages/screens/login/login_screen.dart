@@ -1,5 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 
 import 'package:flutter_animate/flutter_animate.dart';
@@ -22,10 +20,9 @@ import 'package:permisouttec/domain/entities/stored_credential_profile.dart';
 
 import 'package:permisouttec/pages/screens/login/login_welcome_view.dart';
 
-import 'package:permisouttec/providers/auth_provider.dart';
-
 import 'package:permisouttec/providers/biometric_login_provider.dart';
 
+import 'package:permisouttec/services/auth_session.dart';
 import 'package:permisouttec/services/home_prefetch.dart';
 
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
@@ -128,39 +125,23 @@ class _LoginState extends ConsumerState<Login> {
 
     try {
 
-      final repository = ref.read(authRepositoryProvider);
+      final result = await signInAndPrefetchSession(
 
-      final usuario = await repository.signIn(email, password);
+        ref,
 
-      if (usuario != null) {
+        email: email,
 
-        if (persistForBiometric) {
+        password: password,
 
-          await ref.read(secureCredentialStorageProvider).saveCredentials(
+        persistForBiometric: persistForBiometric,
 
-                email: email,
+      );
 
-                password: password,
+      if (result.isSuccess && mounted) {
 
-              );
+        context.go(homeRouteForUsuario(result.usuario!));
 
-          refreshStoredCredentials(ref);
-
-        }
-
-        await prefetchHomeData(ref, usuario);
-
-        if (mounted) {
-
-          context.go(homeRouteForUsuario(usuario));
-
-        }
-
-      }
-
-    } on FirebaseAuthException catch (e) {
-
-      if (e.code == 'wrong-password' && mounted) {
+      } else if (result.firebaseErrorCode == 'wrong-password' && mounted) {
 
         _showIncorrectCredentialsAlert();
 
@@ -180,75 +161,51 @@ class _LoginState extends ConsumerState<Login> {
 
     if (_isLoading) return;
 
+    final biometric = ref.read(biometricAuthServiceProvider);
 
+    final availability = await biometric.checkAvailability();
 
-    setState(() => _isLoading = true);
+    if (!availability.isAvailable) {
 
-    try {
+      if (mounted) {
 
-      final biometric = ref.read(biometricAuthServiceProvider);
+        ScaffoldMessenger.of(context).showSnackBar(
 
-      final availability = await biometric.checkAvailability();
+          SnackBar(content: Text(availability.message ?? 'Biometría no disponible.')),
 
-      if (!availability.isAvailable) {
-
-        if (mounted) {
-
-          ScaffoldMessenger.of(context).showSnackBar(
-
-            SnackBar(content: Text(availability.message ?? 'Biometría no disponible.')),
-
-          );
-
-        }
-
-        return;
+        );
 
       }
 
-
-
-      final result = await biometric.authenticate(
-
-        reason: 'Confirme su identidad para entrar al sistema',
-
-      );
-
-      if (!result.success) {
-
-        if (mounted && result.message != null) {
-
-          ScaffoldMessenger.of(context).showSnackBar(
-
-            SnackBar(content: Text(result.message!)),
-
-          );
-
-        }
-
-        return;
-
-      }
-
-
-
-      if (!mounted) return;
-
-      await _signInWithCredentials(
-
-        profile.email,
-
-        profile.password,
-
-        persistForBiometric: false,
-
-      );
-
-    } finally {
-
-      if (mounted) setState(() => _isLoading = false);
+      return;
 
     }
+
+    final result = await biometric.authenticate(
+
+      reason: 'Confirme su identidad para entrar al sistema',
+
+    );
+
+    if (!result.success) {
+
+      if (mounted && result.message != null) {
+
+        ScaffoldMessenger.of(context).showSnackBar(
+
+          SnackBar(content: Text(result.message!)),
+
+        );
+
+      }
+
+      return;
+
+    }
+
+    if (!mounted) return;
+
+    context.push(AppRoutes.autenticandoBiometrico, extra: profile);
 
   }
 
@@ -418,8 +375,6 @@ class _LoginState extends ConsumerState<Login> {
               child: LoginWelcomeView(
 
                 displayName: profile.displayName,
-
-                isLoading: _isLoading,
 
                 onBiometricLogin: () => _biometricLogin(profile),
 

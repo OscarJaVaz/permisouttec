@@ -7,6 +7,8 @@ import 'package:permisouttec/pages/screens/divisiones/divisiones_screen.dart';
 import 'package:permisouttec/pages/screens/home/home_screen.dart';
 import 'package:permisouttec/pages/screens/home_directivo/home_directivo_screen.dart';
 import 'package:permisouttec/pages/screens/home_profesor/home_profesor_screen.dart';
+import 'package:permisouttec/domain/entities/stored_credential_profile.dart';
+import 'package:permisouttec/pages/screens/login/biometric_authenticating_screen.dart';
 import 'package:permisouttec/pages/screens/login/login_page_with_background.dart';
 import 'package:permisouttec/pages/screens/nueva_division/nueva_division_screen.dart';
 import 'package:permisouttec/pages/screens/nuevo_permiso/nuevo_permiso_screen.dart';
@@ -41,8 +43,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authStateProvider);
       final isLoggedIn = authState.valueOrNull != null;
       final location = state.matchedLocation;
-      final isAuthRoute =
-          location == AppRoutes.login || location == AppRoutes.registro;
+      final isAuthRoute = location == AppRoutes.login ||
+          location == AppRoutes.registro ||
+          location == AppRoutes.autenticandoBiometrico;
 
       if (!isLoggedIn &&
           AppRoutes.protectedPaths.contains(location) &&
@@ -65,6 +68,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           key: state.pageKey,
           child: const RegistroPage(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.autenticandoBiometrico,
+        pageBuilder: (context, state) {
+          final profile = state.extra;
+          if (profile is! StoredCredentialProfile) {
+            return fadeTransitionPage(
+              key: state.pageKey,
+              child: const LoginPageWithBackground(),
+            );
+          }
+          return fadeThroughTransitionPage(
+            key: state.pageKey,
+            child: BiometricAuthenticatingScreen(profile: profile),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.home,

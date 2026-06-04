@@ -10,7 +10,29 @@ import 'package:permisouttec/pages/screens/login/colors_login.dart';
 import 'package:permisouttec/services/firebase_service.dart';
 import 'package:permisouttec/theme/utt_text_styles.dart';
 
-final _appTextTheme = GoogleFonts.interTextTheme();
+TextTheme _buildAppTextTheme() {
+  final base = GoogleFonts.interTextTheme(ThemeData(useMaterial3: true).textTheme);
+  return base.copyWith(
+    headlineSmall: GoogleFonts.montserrat(
+      textStyle: base.headlineSmall,
+      fontWeight: FontWeight.w600,
+      color: LoginColors.deepEmerald,
+    ),
+    titleMedium: GoogleFonts.inter(
+      textStyle: base.titleMedium,
+      color: LoginColors.onSurfaceVariant,
+    ),
+    bodySmall: GoogleFonts.inter(
+      textStyle: base.bodySmall,
+      color: LoginColors.outline,
+    ),
+    labelLarge: GoogleFonts.montserrat(
+      textStyle: base.labelLarge,
+      fontWeight: FontWeight.w600,
+      color: LoginColors.onPrimary,
+    ),
+  );
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +72,7 @@ class MyApp extends ConsumerWidget {
           onSurface: LoginColors.onSurface,
         ),
         scaffoldBackgroundColor: LoginColors.background,
-        textTheme: _appTextTheme,
+        textTheme: _buildAppTextTheme(),
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
