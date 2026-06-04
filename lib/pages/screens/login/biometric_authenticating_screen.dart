@@ -37,13 +37,16 @@ class _BiometricAuthenticatingScreenState
   }
 
   Future<void> _completeSignIn() async {
+    if (!mounted) return;
+    final container = ProviderScope.containerOf(context);
+
     setState(() {
       _isWorking = true;
       _errorMessage = null;
     });
 
     final result = await signInAndPrefetchSession(
-      ref,
+      container,
       email: widget.profile.email,
       password: widget.profile.password,
     );

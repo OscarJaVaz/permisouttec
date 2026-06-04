@@ -13,9 +13,10 @@ import 'package:permisouttec/pages/screens/home_profesor/widgets/permiso_calenda
 import 'package:permisouttec/pages/screens/home_profesor/widgets/permiso_day_card.dart';
 import 'package:permisouttec/pages/screens/home_profesor/widgets/permiso_estado_badge.dart';
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
-import 'package:permisouttec/providers/auth_provider.dart';
 import 'package:permisouttec/domain/entities/usuario_entity.dart';
+import 'package:permisouttec/providers/auth_provider.dart';
 import 'package:permisouttec/providers/permisos_provider.dart';
+import 'package:permisouttec/services/auth_sign_out.dart';
 import 'package:permisouttec/theme/utt_text_styles.dart';
 import 'package:permisouttec/widgets/entrance_animation.dart';
 
@@ -127,7 +128,7 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
   Future<void> _signOut() async {
     setState(() => _isSigningOut = true);
     try {
-      await ref.read(authRepositoryProvider).signOut();
+      await signOutAndClearRtdb(ref);
       if (!mounted) return;
       context.go(AppRoutes.login);
     } finally {

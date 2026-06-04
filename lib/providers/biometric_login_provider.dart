@@ -22,6 +22,6 @@ final storedCredentialProfileProvider =
   return storage.readProfile();
 });
 
-void refreshStoredCredentials(WidgetRef ref) {
-  ref.read(storedCredentialsRevisionProvider.notifier).state++;
+void refreshStoredCredentials(ProviderContainer container) {
+  container.read(storedCredentialsRevisionProvider.notifier).state++;
 }

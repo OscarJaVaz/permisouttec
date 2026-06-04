@@ -7,7 +7,7 @@ import 'package:permisouttec/pages/screens/profesores/profesores_screen.dart';
 import 'package:permisouttec/pages/screens/puestos/puestos_screen.dart';
 import 'package:permisouttec/pages/screens/ver_solicitudes_directivos/ver_solicitudes_directivos_screen.dart';
 import 'package:permisouttec/pages/screens/visualizar_permisos/visualizar_permisos_screen.dart';
-import 'package:permisouttec/providers/auth_provider.dart';
+import 'package:permisouttec/services/auth_sign_out.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -33,7 +33,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future<void> _logout(BuildContext context) async {
-    await ref.read(authRepositoryProvider).signOut();
+    await signOutAndClearRtdb(ref);
     if (context.mounted) {
       context.go(AppRoutes.login);
     }

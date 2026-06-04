@@ -15,9 +15,9 @@ final permisosDatasourceProvider = Provider<PermisosDatasource>((ref) {
   return PermisosDatasource(ref.watch(firebaseDatabaseProvider));
 });
 
-/// Stream estable por usuario; sin autoDispose para conservar datos tras prefetch en login.
+/// Stream por usuario; autoDispose cancela la suscripción al salir de home o cerrar sesión.
 final permisosByUsuarioStreamProvider =
-    StreamProvider.family<List<RtdbRecord>, String>((ref, userId) {
+    StreamProvider.autoDispose.family<List<RtdbRecord>, String>((ref, userId) {
   return ref.watch(permisosDatasourceProvider).streamByUsuario(userId);
 });
 

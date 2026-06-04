@@ -3,6 +3,7 @@ import 'package:permisouttec/domain/entities/usuario_entity.dart';
 import 'package:permisouttec/infraestructure/datasources/usuarios_datasource.dart';
 import 'package:permisouttec/infraestructure/rtdb/rtdb_date_helper.dart';
 import 'package:permisouttec/services/rtdb_auth_sync.dart';
+import 'package:permisouttec/services/rtdb_connection.dart';
 
 class AuthDatasource {
   AuthDatasource(this._usuariosDatasource);
@@ -25,6 +26,7 @@ class AuthDatasource {
     final user = credential.user;
     if (user == null) return null;
     await syncAuthTokenForRtdb();
+    await connectRtdb();
     return fetchUsuario(user.uid);
   }
 

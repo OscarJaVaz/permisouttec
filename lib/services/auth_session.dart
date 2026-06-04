@@ -18,28 +18,29 @@ class AuthSessionResult {
 }
 
 Future<AuthSessionResult> signInAndPrefetchSession(
-  WidgetRef ref, {
+  ProviderContainer container, {
   required String email,
   required String password,
   bool persistForBiometric = false,
 }) async {
   try {
-    final usuario =
-        await ref.read(authRepositoryProvider).signIn(email, password);
+    final usuario = await container
+        .read(authRepositoryProvider)
+        .signIn(email, password);
     if (usuario == null) {
       return const AuthSessionResult();
     }
 
     if (persistForBiometric) {
-      await ref.read(secureCredentialStorageProvider).saveCredentials(
+      await container.read(secureCredentialStorageProvider).saveCredentials(
             email: email,
             password: password,
             displayName: usuario.displayName,
           );
-      refreshStoredCredentials(ref);
+      refreshStoredCredentials(container);
     }
 
-    await prefetchHomeData(ref, usuario);
+    await prefetchHomeData(container, usuario);
     return AuthSessionResult(usuario: usuario);
   } on FirebaseAuthException catch (e) {
     return AuthSessionResult(firebaseErrorCode: e.code);

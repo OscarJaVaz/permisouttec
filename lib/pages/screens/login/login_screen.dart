@@ -87,9 +87,11 @@ class _LoginState extends ConsumerState<Login> {
   }) async {
     setState(() => _isLoading = true);
 
+    final container = ProviderScope.containerOf(context);
+
     try {
       final result = await signInAndPrefetchSession(
-        ref,
+        container,
         email: email,
         password: password,
         persistForBiometric: persistForBiometric,
