@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permisouttec/config/router/app_routes.dart';
@@ -9,6 +8,7 @@ import 'package:permisouttec/infraestructure/rtdb/rtdb_date_helper.dart';
 import 'package:permisouttec/infraestructure/rtdb/rtdb_record.dart';
 import 'package:permisouttec/pages/screens/home_profesor/widgets/home_profesor_bottom_bar.dart';
 import 'package:permisouttec/pages/screens/home_profesor/widgets/home_profesor_header.dart';
+import 'package:permisouttec/pages/screens/home_profesor/widgets/home_profesor_skeleton.dart';
 import 'package:permisouttec/pages/screens/home_profesor/widgets/permiso_calendar_card.dart';
 import 'package:permisouttec/pages/screens/home_profesor/widgets/permiso_day_card.dart';
 import 'package:permisouttec/pages/screens/home_profesor/widgets/permiso_estado_badge.dart';
@@ -318,26 +318,26 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
     );
   }
 
-  Widget _buildLoading() {
-    return UttMotion.motion(
-      context,
-      const Center(
-        child: CircularProgressIndicator(color: LoginColors.deepEmerald),
-      ),
-      (w) => w.animate().fadeIn(duration: UttMotion.medium, curve: UttMotion.easeOut),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final permisosAsync =
         ref.watch(permisosByUsuarioStreamProvider(_currentUser.uid));
+    final cachedRecords = permisosAsync.valueOrNull;
 
     return Scaffold(
       backgroundColor: LoginColors.background,
       body: permisosAsync.when(
         skipLoadingOnReload: true,
-        loading: () => _buildLoading(),
+        loading: () {
+          if (cachedRecords != null) {
+            return _buildPermisosContent(cachedRecords);
+          }
+          return HomeProfesorSkeleton(
+            displayName: _displayName,
+            onSolicitarPermiso: () => context.push(AppRoutes.nuevoPermiso),
+            onCerrarSesion: _signOut,
+          );
+        },
         error: (_, __) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),

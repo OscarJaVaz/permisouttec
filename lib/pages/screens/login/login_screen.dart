@@ -14,8 +14,6 @@ import 'package:permisouttec/config/router/app_routes.dart';
 
 import 'package:permisouttec/config/theme/app_motion.dart';
 
-import 'package:permisouttec/domain/entities/usuario_entity.dart';
-
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
 
 import 'package:permisouttec/pages/screens/login/widgets/login_text_field.dart';
@@ -27,6 +25,8 @@ import 'package:permisouttec/pages/screens/login/login_welcome_view.dart';
 import 'package:permisouttec/providers/auth_provider.dart';
 
 import 'package:permisouttec/providers/biometric_login_provider.dart';
+
+import 'package:permisouttec/services/home_prefetch.dart';
 
 import 'package:permisouttec/widgets/dismiss_keyboard.dart';
 
@@ -98,24 +98,6 @@ class _LoginState extends ConsumerState<Login> {
 
 
 
-  String _homeRouteForUsuario(UsuarioEntity usuario) {
-
-    if (usuario.solicitudDirectivo && !usuario.aprobadoDirectivo) {
-
-      return AppRoutes.homeProfesor;
-
-    }
-
-    if (usuario.puesto == 'Directivo') return AppRoutes.home;
-
-    if (usuario.puesto == 'Profesor') return AppRoutes.homeProfesor;
-
-    return AppRoutes.homeProfesor;
-
-  }
-
-
-
   Future<void> fnLogin() async {
 
     await _signInWithCredentials(
@@ -166,9 +148,11 @@ class _LoginState extends ConsumerState<Login> {
 
         }
 
+        await prefetchHomeData(ref, usuario);
+
         if (mounted) {
 
-          context.go(_homeRouteForUsuario(usuario));
+          context.go(homeRouteForUsuario(usuario));
 
         }
 
