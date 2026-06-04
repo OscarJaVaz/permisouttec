@@ -9,6 +9,8 @@ import 'package:permisouttec/config/router/app_routes.dart';
 import 'package:permisouttec/config/theme/app_motion.dart';
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
 import 'package:permisouttec/pages/screens/login/widgets/login_text_field.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_date_helper.dart';
+import 'package:permisouttec/pages/screens/registro/widgets/registro_date_field.dart';
 import 'package:permisouttec/pages/screens/registro/widgets/registro_dropdown_field.dart';
 import 'package:permisouttec/services/rtdb_auth_sync.dart';
 import 'package:permisouttec/widgets/animated_dialog.dart';
@@ -24,24 +26,113 @@ class RegistroPage extends ConsumerStatefulWidget {
 }
 
 class _RegistroPageState extends ConsumerState<RegistroPage> {
+  final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _apellidoController = TextEditingController();
+  final TextEditingController _telefonoController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _nombreFocusNode = FocusNode();
+  final FocusNode _apellidoFocusNode = FocusNode();
+  final FocusNode _telefonoFocusNode = FocusNode();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   final List<String> _puestos = ['Directivo', 'Profesor'];
 
   String? _selectedPuesto;
+  DateTime? _fechaNacimiento;
   bool _obscurePassword = true;
   bool _privacyAccepted = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
+    _nombreController.dispose();
+    _apellidoController.dispose();
+    _telefonoController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _nombreFocusNode.dispose();
+    _apellidoFocusNode.dispose();
+    _telefonoFocusNode.dispose();
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
     super.dispose();
+  }
+
+  String _telefonoDigits() =>
+      _telefonoController.text.replaceAll(RegExp(r'\D'), '');
+
+  Future<void> _pickFechaNacimiento() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      locale: const Locale('es', 'MX'),
+      initialDate: _fechaNacimiento ?? DateTime(now.year - 22, now.month, now.day),
+      firstDate: DateTime(now.year - 100),
+      lastDate: now,
+      helpText: 'Fecha de nacimiento',
+      cancelText: 'Cancelar',
+      confirmText: 'Aceptar',
+    );
+    if (picked != null) {
+      setState(() => _fechaNacimiento = picked);
+    }
+  }
+
+  bool _validateForm() {
+    final nombre = _nombreController.text.trim();
+    final apellido = _apellidoController.text.trim();
+    if (nombre.isEmpty || apellido.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa tu nombre y apellido.')),
+      );
+      return false;
+    }
+    if (_fechaNacimiento == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecciona tu fecha de nacimiento.')),
+      );
+      return false;
+    }
+    final telefono = _telefonoDigits();
+    if (telefono.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ingresa un número telefónico válido (10 dígitos).'),
+        ),
+      );
+      return false;
+    }
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa un correo electrónico válido.')),
+      );
+      return false;
+    }
+    if (_passwordController.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La contraseña debe tener al menos 6 caracteres.'),
+        ),
+      );
+      return false;
+    }
+    if (_selectedPuesto == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Seleccione su puesto.')),
+      );
+      return false;
+    }
+    if (!_privacyAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Debe aceptar el aviso de privacidad para continuar.'),
+        ),
+      );
+      return false;
+    }
+    return true;
   }
 
   TextStyle _montserrat(double size, FontWeight weight, {Color? color}) {
@@ -61,20 +152,7 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
   }
 
   Future<void> _register() async {
-    if (!_privacyAccepted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Debe aceptar el aviso de privacidad para continuar.'),
-        ),
-      );
-      return;
-    }
-    if (_selectedPuesto == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Seleccione su puesto.')),
-      );
-      return;
-    }
+    if (!_validateForm()) return;
 
     DismissKeyboard.unfocus(context);
     setState(() => _isLoading = true);
@@ -88,10 +166,19 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
 
       await syncAuthTokenForRtdb();
 
+      final nombre = _nombreController.text.trim();
+      final apellido = _apellidoController.text.trim();
+      await userCredential.user?.updateDisplayName('$nombre $apellido');
+
       await ref.read(usuariosDatasourceProvider).setUsuario(
             userCredential.user!.uid,
             {
               'email': _emailController.text.trim(),
+              'nombre': nombre,
+              'apellido': apellido,
+              'telefono': _telefonoDigits(),
+              'fecha_nacimiento':
+                  RtdbDateHelper.toDayMillis(_fechaNacimiento!),
               'puesto': _selectedPuesto,
               'solicitud_directivo': _selectedPuesto == 'Directivo',
               'aprobado_directivo': false,
@@ -192,6 +279,53 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     LoginTextField(
+                      controller: _nombreController,
+                      focusNode: _nombreFocusNode,
+                      label: 'Nombre(s)',
+                      hint: 'Ej. Juan Carlos',
+                      prefixIcon: Icons.person_outline,
+                      textInputAction: TextInputAction.next,
+                      autofillHints: const [AutofillHints.givenName],
+                      onFieldSubmitted: (_) => _apellidoFocusNode.requestFocus(),
+                      entranceIndex: 2,
+                    ),
+                    const SizedBox(height: 20),
+                    LoginTextField(
+                      controller: _apellidoController,
+                      focusNode: _apellidoFocusNode,
+                      label: 'Apellidos',
+                      hint: 'Ej. Pérez García',
+                      prefixIcon: Icons.badge_outlined,
+                      textInputAction: TextInputAction.next,
+                      autofillHints: const [AutofillHints.familyName],
+                      onFieldSubmitted: (_) => _telefonoFocusNode.requestFocus(),
+                      entranceIndex: 3,
+                    ),
+                    const SizedBox(height: 20),
+                    EntranceFadeSlide(
+                      index: 4,
+                      child: RegistroDateField(
+                        label: 'Fecha de nacimiento',
+                        hint: 'Selecciona tu fecha',
+                        value: _fechaNacimiento,
+                        onTap: _pickFechaNacimiento,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    LoginTextField(
+                      controller: _telefonoController,
+                      focusNode: _telefonoFocusNode,
+                      label: 'Teléfono',
+                      hint: '10 dígitos',
+                      prefixIcon: Icons.phone_outlined,
+                      keyboardType: TextInputType.phone,
+                      textInputAction: TextInputAction.next,
+                      autofillHints: const [AutofillHints.telephoneNumber],
+                      onFieldSubmitted: (_) => _emailFocusNode.requestFocus(),
+                      entranceIndex: 5,
+                    ),
+                    const SizedBox(height: 20),
+                    LoginTextField(
                       controller: _emailController,
                       focusNode: _emailFocusNode,
                       label: 'Correo electrónico',
@@ -199,8 +333,9 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
                       prefixIcon: Icons.mail_outline,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
+                      autofillHints: const [AutofillHints.email],
                       onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
-                      entranceIndex: 2,
+                      entranceIndex: 6,
                     ),
                     const SizedBox(height: 20),
                     LoginTextField(
@@ -212,7 +347,7 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => DismissKeyboard.unfocus(context),
-                      entranceIndex: 3,
+                      entranceIndex: 7,
                       suffixIcon: IconButton(
                         icon: AnimatedSwitcher(
                           duration: UttMotion.fast,
@@ -235,7 +370,7 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
                     ),
                     const SizedBox(height: 20),
                     EntranceFadeSlide(
-                      index: 4,
+                      index: 8,
                       child: RegistroDropdownField(
                         label: 'Puesto',
                         hint: 'Selecciona tu puesto',
@@ -259,7 +394,7 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
                     ),
                     const SizedBox(height: 16),
                     EntranceFadeSlide(
-                      index: 5,
+                      index: 9,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -307,7 +442,7 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
                     ),
                     const SizedBox(height: 28),
                     EntranceFadeSlide(
-                      index: 6,
+                      index: 10,
                       child: SizedBox(
                         width: double.infinity,
                         child: Focus(
@@ -351,7 +486,7 @@ class _RegistroPageState extends ConsumerState<RegistroPage> {
               ),
               const SizedBox(height: 40),
               EntranceFadeSlide(
-                index: 7,
+                index: 11,
                 child: Center(
                   child: TextButton(
                     onPressed: () => context.go(AppRoutes.login),

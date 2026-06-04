@@ -14,6 +14,7 @@ import 'package:permisouttec/pages/screens/home_profesor/widgets/permiso_day_car
 import 'package:permisouttec/pages/screens/home_profesor/widgets/permiso_estado_badge.dart';
 import 'package:permisouttec/pages/screens/login/colors_login.dart';
 import 'package:permisouttec/providers/auth_provider.dart';
+import 'package:permisouttec/domain/entities/usuario_entity.dart';
 import 'package:permisouttec/providers/permisos_provider.dart';
 import 'package:permisouttec/theme/utt_text_styles.dart';
 import 'package:permisouttec/widgets/entrance_animation.dart';
@@ -41,12 +42,11 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
     _focusedDay = now;
   }
 
-  String get _displayName {
+  String _displayName(UsuarioEntity? usuario) {
+    if (usuario != null) return usuario.displayName;
     final email = _currentUser.email;
     if (email == null || email.isEmpty) return 'Profesor';
-    final local = email.split('@').first;
-    if (local.isEmpty) return 'Profesor';
-    return local[0].toUpperCase() + local.substring(1);
+    return UsuarioEntity.displayNameFromEmail(email);
   }
 
   List<RtdbRecord> _activeRecords(List<RtdbRecord> records) {
@@ -241,7 +241,7 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
     );
   }
 
-  Widget _buildPermisosContent(List<RtdbRecord> records) {
+  Widget _buildPermisosContent(List<RtdbRecord> records, String displayName) {
     _markEntrancePlayed();
     final active = _activeRecords(records);
 
@@ -274,7 +274,7 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
                 children: [
                   _wrapEntrance(
                     HomeProfesorHeader(
-                      displayName: _displayName,
+                      displayName: displayName,
                       pendientes: pendientes,
                       aprobados: aprobados,
                     ),
@@ -323,6 +323,8 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
     final permisosAsync =
         ref.watch(permisosByUsuarioStreamProvider(_currentUser.uid));
     final cachedRecords = permisosAsync.valueOrNull;
+    final usuarioAsync = ref.watch(currentUsuarioProvider);
+    final displayName = _displayName(usuarioAsync.valueOrNull);
 
     return Scaffold(
       backgroundColor: LoginColors.background,
@@ -330,10 +332,10 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
         skipLoadingOnReload: true,
         loading: () {
           if (cachedRecords != null) {
-            return _buildPermisosContent(cachedRecords);
+            return _buildPermisosContent(cachedRecords, displayName);
           }
           return HomeProfesorSkeleton(
-            displayName: _displayName,
+            displayName: displayName,
             onSolicitarPermiso: () => context.push(AppRoutes.nuevoPermiso),
             onCerrarSesion: _signOut,
           );
@@ -355,7 +357,7 @@ class _HomePageProfesorState extends ConsumerState<HomePageProfesor> {
             switchOutCurve: UttMotion.easeOut,
             child: KeyedSubtree(
               key: const ValueKey('permisos-content'),
-              child: _buildPermisosContent(records),
+              child: _buildPermisosContent(records, displayName),
             ),
           );
         },

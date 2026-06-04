@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:permisouttec/domain/entities/stored_credential_profile.dart';
+import 'package:permisouttec/domain/entities/usuario_entity.dart';
 
 class SecureCredentialStorage {
   SecureCredentialStorage({FlutterSecureStorage? storage})
@@ -33,7 +34,7 @@ class SecureCredentialStorage {
       password: password,
       displayName: displayName?.isNotEmpty == true
           ? displayName!
-          : _displayNameFromEmail(email),
+          : UsuarioEntity.displayNameFromEmail(email),
     );
   }
 
@@ -46,19 +47,9 @@ class SecureCredentialStorage {
     await _storage.write(key: _keyPassword, value: password);
     await _storage.write(
       key: _keyDisplayName,
-      value: displayName ?? _displayNameFromEmail(email),
+      value: displayName ?? UsuarioEntity.displayNameFromEmail(email),
     );
   }
 
   Future<void> clearCredentials() => _storage.deleteAll();
-
-  static String _displayNameFromEmail(String email) {
-    final local = email.split('@').first.trim();
-    if (local.isEmpty) return 'Usuario';
-    return local
-        .split(RegExp(r'[._-]+'))
-        .where((part) => part.isNotEmpty)
-        .map((part) => '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}')
-        .join(' ');
-  }
 }

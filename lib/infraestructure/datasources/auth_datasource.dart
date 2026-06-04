@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:permisouttec/domain/entities/usuario_entity.dart';
 import 'package:permisouttec/infraestructure/datasources/usuarios_datasource.dart';
+import 'package:permisouttec/infraestructure/rtdb/rtdb_date_helper.dart';
 import 'package:permisouttec/services/rtdb_auth_sync.dart';
 
 class AuthDatasource {
@@ -36,6 +37,10 @@ class AuthDatasource {
       puesto: data['puesto'] as String?,
       solicitudDirectivo: data['solicitud_directivo'] as bool? ?? false,
       aprobadoDirectivo: data['aprobado_directivo'] as bool? ?? false,
+      nombre: data['nombre'] as String?,
+      apellido: data['apellido'] as String?,
+      telefono: data['telefono'] as String?,
+      fechaNacimiento: RtdbDateHelper.fromValue(data['fecha_nacimiento']),
     );
   }
 

@@ -106,9 +106,20 @@ class _VerSolicitudesDirectivosPageState
               final String userId = record.id;
               final String email = record.string('email') ?? '';
               final String puesto = record.string('puesto') ?? '';
+              final nombre = record.string('nombre')?.trim() ?? '';
+              final apellido = record.string('apellido')?.trim() ?? '';
+              final nombreCompleto = '$nombre $apellido'.trim();
+              final telefono = record.string('telefono');
               return ListTile(
-                title: Text(email),
-                subtitle: Text('Puesto: $puesto'),
+                title: Text(nombreCompleto.isNotEmpty ? nombreCompleto : email),
+                subtitle: Text(
+                  [
+                    if (nombreCompleto.isNotEmpty) email,
+                    'Puesto: $puesto',
+                    if (telefono != null && telefono.isNotEmpty)
+                      'Tel: $telefono',
+                  ].join(' · '),
+                ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

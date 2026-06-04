@@ -34,6 +34,7 @@ Future<AuthSessionResult> signInAndPrefetchSession(
       await ref.read(secureCredentialStorageProvider).saveCredentials(
             email: email,
             password: password,
+            displayName: usuario.displayName,
           );
       refreshStoredCredentials(ref);
     }
